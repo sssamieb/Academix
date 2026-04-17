@@ -1,0 +1,40 @@
+gitignore_content = """# --- Root / OS ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# --- Backend (Laravel) ---
+/backend/vendor/
+/backend/node_modules/
+/backend/.env
+/backend/.env.backup
+/backend/storage/*.key
+/backend/storage/framework/cache/data/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/testing/*
+/backend/storage/framework/views/*
+/backend/storage/logs/*
+/backend/public/storage
+/backend/bootstrap/cache/*
+
+# --- Frontend (Angular) ---
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.angular/
+/frontend/.cache/
+/frontend/.sass-cache/
+/frontend/connect.lock
+/frontend/coverage/
+/frontend/lib/
+
+# --- Otros ---
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+.env
+"""
+
+with open(".gitignore", "w") as f:
+    f.write(gitignore_content)
