@@ -1,0 +1,419 @@
+<main class="editor-wrap">
+
+  <!-- Loading -->
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando curso...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && course">
+
+    <!-- Header -->
+    <div class="editor-header">
+      <button class="btn-back" (click)="goBack()">
+        <i class="bi bi-arrow-left"></i> Mis cursos
+      </button>
+      <div class="editor-header-info">
+        <div class="course-status-badge" [class]="'status-' + course.status">
+          {{ course.status === 'draft' ? 'Borrador' : course.status === 'in_review' ? 'En revisión' : course.status === 'rejected' ? 'Rechazado' : 'Publicado' }}
+        </div>
+        <h1>{{ course.title }}</h1>
+        <p>{{ course.category?.name }} · {{ course.level | titlecase }}</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-preview" (click)="goToPreview()">
+          <i class="bi bi-eye"></i> Vista previa
+        </button>
+        <button class="btn-edit-info" (click)="toggleInfoPanel()" *ngIf="isDraft()">
+          <i class="bi bi-pencil"></i> Editar info
+        </button>
+        <button class="btn-submit" (click)="submitForReview()" *ngIf="isDraft()">
+          <i class="bi bi-send"></i> Enviar a revisión
+        </button>
+      </div>
+    </div>
+
+    <!-- Panel editar info básica -->
+    <div class="info-edit-panel" *ngIf="showInfoPanel" [formGroup]="infoForm">
+      <div class="info-panel-header">
+        <h3>Editar información del curso</h3>
+        <button class="btn-close-panel" (click)="toggleInfoPanel()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="info-panel-body">
+        <div class="form-row-panel">
+          <div class="form-group-panel">
+            <label>Título</label>
+            <input type="text" formControlName="title" placeholder="Título del curso" />
+          </div>
+          <div class="form-group-panel">
+            <label>Nivel</label>
+            <select formControlName="level">
+              <option value="basico">Básico</option>
+              <option value="intermedio">Intermedio</option>
+              <option value="avanzado">Avanzado</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-panel">
+          <div class="form-group-panel">
+            <label>Categoría</label>
+            <select formControlName="category_id">
+              <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group-panel">
+          <label>Descripción corta</label>
+          <textarea formControlName="short_description" rows="3"
+            placeholder="Descripción corta del curso..."></textarea>
+        </div>
+      </div>
+      <div class="info-panel-footer">
+        <button class="btn-cancel-panel" (click)="toggleInfoPanel()">Cancelar</button>
+        <button class="btn-save-panel" (click)="saveInfo()" [disabled]="isSaving">
+          <span class="btn-spinner white" *ngIf="isSaving"></span>
+          <i class="bi bi-floppy-fill" *ngIf="!isSaving"></i>
+          {{ isSaving ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Layout editor -->
+    <div class="editor-layout" [class.panel-open]="activeLessonPanel || activeQuizPanel">
+
+      <!-- Columna izquierda: estructura del curso -->
+      <div class="course-structure">
+
+        <div *ngFor="let section of sections; let si = index" class="section-block">
+
+          <!-- SECCIÓN PRESENTACIÓN -->
+          <div class="section-card presentation-section" *ngIf="section.is_presentation">
+            <div class="section-head">
+              <div class="section-icon presentation">
+                <i class="bi bi-file-text-fill"></i>
+              </div>
+              <h3>Presentación del curso</h3>
+            </div>
+            <div class="presentation-editor" *ngIf="isDraft()">
+              <quill-editor
+                [(ngModel)]="presentationContent"
+                [modules]="quillConfig"
+                placeholder="Describí el curso: objetivos, requisitos, a quién va dirigido..."
+                (onEditorCreated)="initPresentation(section)"
+              ></quill-editor>
+              <button class="btn-save-presentation" (click)="savePresentation(section)" [disabled]="savingPresentation">
+                <span class="btn-spinner" *ngIf="savingPresentation"></span>
+                <i class="bi bi-floppy-fill" *ngIf="!savingPresentation"></i>
+                {{ savingPresentation ? 'Guardando...' : 'Guardar presentación' }}
+              </button>
+            </div>
+            <div class="presentation-preview" *ngIf="!isDraft()" [innerHTML]="section.presentation_content"></div>
+          </div>
+
+          <!-- SECCIÓN EXAMEN FINAL -->
+          <div class="section-card exam-section" *ngIf="section.is_final_exam">
+            <div class="section-head">
+              <div class="section-icon exam">
+                <i class="bi bi-clipboard-check-fill"></i>
+              </div>
+              <h3>Examen final</h3>
+              <span class="exam-info-badge">
+                <i class="bi bi-info-circle"></i>
+                Se genera automáticamente con preguntas de los quizzes
+              </span>
+            </div>
+          </div>
+
+          <!-- SECCIONES DE CONTENIDO -->
+          <div class="section-card"
+            *ngIf="!section.is_presentation && !section.is_final_exam">
+
+            <div class="section-head">
+              <div class="section-icon">{{ si }}</div>
+
+              <input
+                *ngIf="editingTitles['s-' + section.id]"
+                class="title-input"
+                [(ngModel)]="titleValues['s-' + section.id]"
+                (blur)="saveTitle('s-' + section.id, 'section', section.id)"
+                (keydown)="onTitleKeydown($event, 's-' + section.id, 'section', section.id)"
+                autofocus
+              />
+              <h3
+                *ngIf="!editingTitles['s-' + section.id]"
+                (dblclick)="isDraft() && startEditTitle('s-' + section.id, section.title)"
+                [class.editable]="isDraft()"
+                [title]="isDraft() ? 'Doble click para editar' : ''"
+              >{{ section.title }}</h3>
+
+              <button class="btn-icon-danger" (click)="deleteSection(section)"
+                *ngIf="isDraft() && !section.is_final_exam && !section.is_presentation">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+
+            <div class="lessons-list">
+              <div class="lesson-item"
+                *ngFor="let lesson of section.lessons; let li = index"
+                [class.active]="activeLessonPanel?.lesson?.id === lesson.id">
+
+                <div class="lesson-item-left">
+                  <div class="lesson-num">{{ li + 1 }}</div>
+
+                  <input
+                    *ngIf="editingTitles['l-' + lesson.id]"
+                    class="title-input"
+                    [(ngModel)]="titleValues['l-' + lesson.id]"
+                    (blur)="saveTitle('l-' + lesson.id, 'lesson', lesson.id, section.id)"
+                    (keydown)="onTitleKeydown($event, 'l-' + lesson.id, 'lesson', lesson.id, section.id)"
+                    autofocus
+                  />
+                  <span
+                    *ngIf="!editingTitles['l-' + lesson.id]"
+                    class="lesson-title"
+                    (dblclick)="isDraft() && startEditTitle('l-' + lesson.id, lesson.title)"
+                    [class.editable]="isDraft()"
+                    [title]="isDraft() ? 'Doble click para editar' : ''"
+                  >{{ lesson.title }}</span>
+                </div>
+
+                <div class="lesson-item-actions">
+                  <div class="lesson-indicators">
+                    <span class="indicator" [class.filled]="lesson.video_url" title="Video">
+                      <i class="bi bi-play-circle-fill"></i>
+                    </span>
+                    <span class="indicator" [class.filled]="lesson.article_content" title="Artículo">
+                      <i class="bi bi-file-text-fill"></i>
+                    </span>
+                    <span class="indicator"
+                      [class.filled]="lesson.quiz?.is_active && lesson.quiz?.questions?.length"
+                      title="Quiz">
+                      <i class="bi bi-question-circle-fill"></i>
+                    </span>
+                  </div>
+
+                  <button class="btn-edit-lesson" (click)="openLessonPanel(section, lesson)" *ngIf="isDraft()">
+                    <i class="bi bi-pencil-square"></i>
+                    Editar contenido
+                  </button>
+
+                  <!-- Quiz toggle + editar -->
+                  <div class="quiz-toggle-wrap" *ngIf="lesson.quiz && isDraft()">
+                    <button class="btn-quiz"
+                      (click)="openQuizPanel(lesson)"
+                      *ngIf="lesson.quiz.is_active"
+                      title="Editar quiz">
+                      <i class="bi bi-question-circle"></i>
+                      Quiz
+                    </button>
+                    <button class="btn-quiz-toggle"
+                      (click)="toggleQuiz(lesson)"
+                      [title]="lesson.quiz.is_active ? 'Desactivar quiz' : 'Activar quiz'">
+                      <i class="bi"
+                        [class.bi-toggle-on]="lesson.quiz.is_active"
+                        [class.bi-toggle-off]="!lesson.quiz.is_active"></i>
+                    </button>
+                  </div>
+
+                  <button class="btn-icon-danger small" (click)="deleteLesson(section, lesson)"
+                    *ngIf="isDraft() && section.lessons.length > 1">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+
+              </div>
+
+              <button class="btn-add-lesson" (click)="addLesson(section)" *ngIf="isDraft()">
+                <i class="bi bi-plus-lg"></i> Agregar lección
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <button class="btn-add-section" (click)="addSection()" *ngIf="isDraft()">
+          <i class="bi bi-plus-circle"></i> Agregar sección
+        </button>
+
+      </div>
+
+      <!-- Panel lateral: editar lección -->
+      <div class="side-panel" *ngIf="activeLessonPanel">
+        <div class="side-panel-header">
+          <div>
+            <h3>Editar lección</h3>
+            <p>{{ activeLessonPanel.lesson.title }}</p>
+          </div>
+          <button class="btn-close-panel" (click)="closeLessonPanel()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="side-panel-body" [formGroup]="lessonForm">
+
+          <!-- Selector de tipo -->
+          <div class="type-selector">
+            <label class="panel-label">Tipo de contenido</label>
+            <div class="type-buttons">
+              <button type="button"
+                class="type-btn"
+                [class.active]="lessonForm.get('type')?.value === 'video' || lessonForm.get('type')?.value === 'both'"
+                (click)="toggleContentType('video')">
+                <i class="bi bi-play-circle-fill"></i>
+                Video
+              </button>
+              <button type="button"
+                class="type-btn"
+                [class.active]="lessonForm.get('type')?.value === 'article' || lessonForm.get('type')?.value === 'both'"
+                (click)="toggleContentType('article')">
+                <i class="bi bi-file-text-fill"></i>
+                Artículo
+              </button>
+            </div>
+          </div>
+
+          <!-- Video -->
+<div class="panel-section" *ngIf="lessonForm.get('type')?.value === 'video'">
+  <label class="panel-label">
+    <i class="bi bi-play-circle-fill"></i>
+    URL del video
+  </label>
+  <input type="url" formControlName="video_url"
+    placeholder="https://youtube.com/..." class="panel-input" />
+  <p class="panel-hint">YouTube, Vimeo u otro servicio de video.</p>
+</div>
+
+<!-- Artículo -->
+<div class="panel-section" *ngIf="lessonForm.get('type')?.value === 'article'">
+  <label class="panel-label">
+    <i class="bi bi-file-text-fill"></i>
+    Artículo / Documentación
+  </label>
+  <quill-editor formControlName="article_content"
+    [modules]="quillConfig"
+    placeholder="Escribí el contenido del artículo...">
+  </quill-editor>
+</div>
+
+<!-- Duración — solo si hay video -->
+<div class="panel-section" *ngIf="lessonForm.get('type')?.value === 'video'">
+  <label class="panel-label">
+    <i class="bi bi-clock-fill"></i>
+    Duración del video (minutos)
+  </label>
+  <input type="number" formControlName="duration"
+    placeholder="Ej: 15" class="panel-input" min="1" />
+</div>
+
+<!-- Notas — solo si hay algo seleccionado -->
+<div class="panel-section" *ngIf="lessonForm.get('type')?.value" style="margin-top: 3rem;">
+  <label class="panel-label">
+    <i class="bi bi-sticky-fill"></i>
+    Notas / Descripción
+  </label>
+  <textarea formControlName="notes" rows="5"
+    placeholder="Agregá un resumen, puntos clave o recursos adicionales..."
+    class="panel-textarea"></textarea>
+  <p class="panel-hint">Estas notas aparecerán debajo del contenido.</p>
+</div>
+
+        </div>
+
+        <div class="side-panel-footer">
+          <button class="btn-cancel-panel" (click)="closeLessonPanel()">Cancelar</button>
+          <button class="btn-save-panel" (click)="saveLessonContent()" [disabled]="isSaving">
+            <span class="btn-spinner white" *ngIf="isSaving"></span>
+            <i class="bi bi-floppy-fill" *ngIf="!isSaving"></i>
+            {{ isSaving ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel lateral: editar quiz -->
+      <div class="side-panel quiz-panel" *ngIf="activeQuizPanel">
+        <div class="side-panel-header">
+          <div>
+            <h3>Editar quiz</h3>
+            <p>{{ activeQuizPanel.lesson.title }}</p>
+          </div>
+          <button class="btn-close-panel" (click)="closeQuizPanel()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="side-panel-body" [formGroup]="quizForm">
+
+          <div class="panel-section passing-score-row">
+            <label class="panel-label">Puntaje mínimo para aprobar</label>
+            <div class="score-input-wrap">
+              <input type="number" formControlName="passing_score"
+                min="1" max="100" class="score-input" />
+              <span>%</span>
+            </div>
+          </div>
+
+          <div class="panel-section passing-score-row">
+            <label class="panel-label">Tiempo límite</label>
+            <div class="score-input-wrap">
+              <input type="number" formControlName="time_limit_minutes"
+                min="1" max="180" class="score-input" />
+              <span>min</span>
+            </div>
+          </div>
+
+          <div class="questions-list" formArrayName="questions">
+            <div *ngFor="let q of quizQuestions.controls; let qi = index"
+              [formGroupName]="qi" class="question-block">
+
+              <div class="question-header">
+                <span class="question-tag">P{{ qi + 1 }}</span>
+                <input formControlName="question" placeholder="Escribí la pregunta..." class="question-input" />
+                <button type="button" class="btn-icon-danger small" (click)="removeQuestion(qi)"
+                  *ngIf="quizQuestions.length > 1">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+
+              <div class="options-list" formArrayName="options">
+                <div *ngFor="let opt of getOptions(qi).controls; let oi = index"
+                  [formGroupName]="oi"
+                  class="option-row"
+                  [class.correct]="opt.get('is_correct')?.value">
+                  <button type="button" class="correct-btn"
+                    (click)="setCorrect(qi, oi)"
+                    [class.active]="opt.get('is_correct')?.value">
+                    <i class="bi"
+                      [class.bi-check-circle-fill]="opt.get('is_correct')?.value"
+                      [class.bi-circle]="!opt.get('is_correct')?.value"></i>
+                  </button>
+                  <input formControlName="option_text"
+                    placeholder="Opción {{ oi + 1 }}" class="option-input" />
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <button type="button" class="btn-add-question" (click)="addQuestion()">
+            <i class="bi bi-plus-lg"></i> Agregar pregunta
+          </button>
+
+        </div>
+
+        <div class="side-panel-footer">
+          <button class="btn-cancel-panel" (click)="closeQuizPanel()">Cancelar</button>
+          <button class="btn-save-panel" (click)="saveQuiz()" [disabled]="isSaving || quizForm.invalid">
+            <span class="btn-spinner white" *ngIf="isSaving"></span>
+            <i class="bi bi-floppy-fill" *ngIf="!isSaving"></i>
+            {{ isSaving ? 'Guardando...' : 'Guardar quiz' }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</main>

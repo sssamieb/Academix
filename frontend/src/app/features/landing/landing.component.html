@@ -1,0 +1,452 @@
+<div class="landing-page">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" [class.scrolled]="isScrolled">
+    <div class="nav-container">
+
+      <a routerLink="/" class="nav-brand">
+        <i class="bi bi-mortarboard-fill brand-icon"></i>
+        <span>Academix</span>
+      </a>
+
+      <div class="nav-links" [class.open]="menuOpen">
+        <a class="nav-link" (click)="scrollTo('categorias'); menuOpen = false">Categorías</a>
+<a class="nav-link" (click)="scrollTo('planes'); menuOpen = false">Planes</a>
+<a class="nav-link" (click)="scrollTo('testimonios'); menuOpen = false">Testimonios</a>
+<a class="nav-link" (click)="scrollTo('faq'); menuOpen = false">FAQ</a>
+        <div class="nav-actions">
+          <a routerLink="/auth/login"    class="btn-nav-login">Iniciar sesión</a>
+          <a routerLink="/auth/register" class="btn-nav-register">Comenzar gratis</a>
+        </div>
+      </div>
+
+      <button class="hamburger" (click)="toggleMenu()">
+        <i class="bi" [class.bi-list]="!menuOpen" [class.bi-x-lg]="menuOpen"></i>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-circle circle-1"></div>
+      <div class="hero-circle circle-2"></div>
+      <div class="hero-circle circle-3"></div>
+    </div>
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Aprende las habilidades que el
+          <span class="highlight">mundo demanda</span>
+        </h1>
+        <p class="hero-subtitle">
+          Accede a más de 200 cursos creados por expertos de la industria.
+          Aprende a tu ritmo, obtén certificados reconocidos y transforma tu carrera profesional.
+        </p>
+        <div class="hero-actions">
+          <a routerLink="/auth/register" class="btn-hero-primary">
+            Comenzar gratis
+            <i class="bi bi-arrow-right"></i>
+          </a>
+          <a class="btn-hero-secondary" (click)="scrollTo('categorias')">
+  <i class="bi bi-play-circle"></i>
+  Ver cursos
+</a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-avatars">
+            <div class="avatar" style="background: #4F46E5">MG</div>
+            <div class="avatar" style="background: #06B6D4">CM</div>
+            <div class="avatar" style="background: #2D2D7B">AR</div>
+            <div class="avatar" style="background: #7C3AED">JP</div>
+          </div>
+          <p>
+            <strong>+50,000</strong> estudiantes ya están aprendiendo
+          </p>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card main-card">
+          <div class="card-header-visual">
+            <div class="card-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="course-preview">
+            <div class="course-thumb">
+              <i class="bi bi-code-slash"></i>
+            </div>
+            <div class="course-info">
+              <h4>Desarrollo Web Full Stack</h4>
+              <p>Angular + Laravel + MySQL</p>
+              <div class="course-stars">
+                <i class="bi bi-star-fill" *ngFor="let s of [1,2,3,4,5]"></i>
+                <span>4.9 (2.3k)</span>
+              </div>
+            </div>
+          </div>
+          <div class="progress-section">
+            <div class="progress-label">
+              <span>Tu progreso</span>
+              <span>68%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 68%"></div>
+            </div>
+          </div>
+          <div class="lesson-list">
+            <div class="lesson-item done">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Introducción a Angular</span>
+            </div>
+            <div class="lesson-item done">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Componentes y módulos</span>
+            </div>
+            <div class="lesson-item active">
+              <i class="bi bi-play-circle-fill"></i>
+              <span>Servicios e inyección</span>
+            </div>
+            <div class="lesson-item">
+              <i class="bi bi-circle"></i>
+              <span>Routing avanzado</span>
+            </div>
+          </div>
+        </div>
+        <div class="floating-card card-students">
+          <i class="bi bi-people-fill"></i>
+          <div>
+            <strong>1,240</strong>
+            <span>estudiantes hoy</span>
+          </div>
+        </div>
+        <div class="floating-card card-certificate">
+          <i class="bi bi-patch-check-fill"></i>
+          <div>
+            <strong>Certificado</strong>
+            <span>al completar</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STATS ===== -->
+  <section class="stats">
+    <div class="stats-container">
+      <div class="stat-item" *ngFor="let stat of stats">
+        <i class="bi" [class]="stat.icon"></i>
+        <h3>{{ stat.number }}</h3>
+        <p>{{ stat.label }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CATEGORÍAS ===== -->
+  <section class="categories" id="categorias">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">Explora</span>
+        <h2>Aprende lo que necesitas</h2>
+        <p>Elige entre nuestras categorías más populares y comienza tu camino hacia el éxito profesional.</p>
+      </div>
+      <div class="categories-grid">
+        <div class="category-card" *ngFor="let cat of categories">
+          <div class="category-icon">
+            <i class="bi" [class]="cat.icon"></i>
+          </div>
+          <h3>{{ cat.name }}</h3>
+          <p>{{ cat.courses }} cursos disponibles</p>
+          <a href="#" class="category-link">
+            Explorar
+            <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== POR QUÉ ACADEMIX ===== -->
+  <section class="why-us">
+    <div class="section-container">
+      <div class="why-grid">
+        <div class="why-content">
+          <span class="section-tag">¿Por qué Academix?</span>
+          <h2>Una experiencia de aprendizaje diseñada para resultados reales</h2>
+          <p class="why-subtitle">
+            No somos solo otra plataforma de cursos. Somos tu socio en el crecimiento profesional,
+            con herramientas y metodologías probadas por miles de estudiantes exitosos.
+          </p>
+          <div class="why-features">
+            <div class="why-feature">
+                            <div class="feature-icon">
+                <i class="bi bi-patch-check-fill"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Instructores verificados</h4>
+                <p>Todos nuestros instructores pasan por un riguroso proceso de selección y son profesionales activos en la industria.</p>
+              </div>
+            </div>
+            <div class="why-feature">
+              <div class="feature-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Aprendizaje adaptativo</h4>
+                <p>Nuestra plataforma se adapta a tu ritmo y estilo de aprendizaje para maximizar tu progreso.</p>
+              </div>
+            </div>
+            <div class="why-feature">
+              <div class="feature-icon">
+                <i class="bi bi-trophy-fill"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Certificados reconocidos</h4>
+                <p>Nuestros certificados son reconocidos por más de 500 empresas líderes a nivel mundial.</p>
+              </div>
+            </div>
+            <div class="why-feature">
+              <div class="feature-icon">
+                <i class="bi bi-headset"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Soporte 24/7</h4>
+                <p>Nuestro equipo de soporte está disponible en todo momento para ayudarte en tu aprendizaje.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="why-visual">
+          <div class="why-card">
+            <div class="why-card-header">
+              <i class="bi bi-mortarboard-fill"></i>
+              <span>Tu ruta de aprendizaje</span>
+            </div>
+            <div class="roadmap">
+              <div class="roadmap-item completed">
+                <div class="roadmap-dot">
+                  <i class="bi bi-check-lg"></i>
+                </div>
+                <div class="roadmap-content">
+                  <h5>Fundamentos</h5>
+                  <p>HTML, CSS, JavaScript</p>
+                </div>
+                <span class="roadmap-badge done">Completado</span>
+              </div>
+              <div class="roadmap-line completed"></div>
+              <div class="roadmap-item completed">
+                <div class="roadmap-dot">
+                  <i class="bi bi-check-lg"></i>
+                </div>
+                <div class="roadmap-content">
+                  <h5>Frontend</h5>
+                  <p>Angular, TypeScript</p>
+                </div>
+                <span class="roadmap-badge done">Completado</span>
+              </div>
+              <div class="roadmap-line active"></div>
+              <div class="roadmap-item active">
+                <div class="roadmap-dot active">
+                  <i class="bi bi-play-fill"></i>
+                </div>
+                <div class="roadmap-content">
+                  <h5>Backend</h5>
+                  <p>Laravel, MySQL</p>
+                </div>
+                <span class="roadmap-badge progress">En progreso</span>
+              </div>
+              <div class="roadmap-line"></div>
+              <div class="roadmap-item">
+                <div class="roadmap-dot pending">
+                  <i class="bi bi-lock-fill"></i>
+                </div>
+                <div class="roadmap-content">
+                  <h5>DevOps</h5>
+                  <p>Docker, CI/CD</p>
+                </div>
+                <span class="roadmap-badge pending">Próximo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PLANES ===== -->
+  <section class="plans" id="planes">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">Precios</span>
+        <h2>Elige el plan perfecto para ti</h2>
+        <p>Sin contratos, sin sorpresas. Cancela cuando quieras.</p>
+      </div>
+      <div class="plans-grid">
+        <div
+          class="plan-card"
+          *ngFor="let plan of plans"
+          [class.popular]="plan.popular"
+        >
+          <div class="popular-badge" *ngIf="plan.popular">
+            <i class="bi bi-lightning-charge-fill"></i>
+            Más popular
+          </div>
+          <div class="plan-header">
+            <div class="plan-icon" [class]="plan.type">
+              <i class="bi" [class]="plan.icon"></i>
+            </div>
+            <h3>{{ plan.name }}</h3>
+            <div class="plan-price">
+              <span class="currency">$</span>
+              <span class="amount">{{ plan.price }}</span>
+              <span class="period">/ {{ plan.period }}</span>
+            </div>
+          </div>
+          <ul class="plan-features">
+            <li *ngFor="let feature of plan.features" [class.excluded]="!feature.included">
+              <i class="bi" [class.bi-check-circle-fill]="feature.included" [class.bi-x-circle-fill]="!feature.included"></i>
+              {{ feature.text }}
+            </li>
+          </ul>
+          <a
+            routerLink="/auth/register"
+            class="btn-plan"
+            [class.btn-plan-popular]="plan.popular"
+          >
+            Comenzar ahora
+            <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ===== TESTIMONIOS ===== -->
+  <section class="testimonials" id="testimonios">
+    <div class="section-container">
+      <div class="section-header light">
+        <span class="section-tag light">Testimonios</span>
+        <h2>Lo que dicen nuestros estudiantes</h2>
+        <p>Miles de profesionales ya transformaron su carrera con Academix.</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card" *ngFor="let t of testimonials">
+          <div class="testimonial-stars">
+            <i class="bi bi-star-fill" *ngFor="let s of [1,2,3,4,5]"></i>
+          </div>
+          <p class="testimonial-text">"{{ t.text }}"</p>
+          <div class="testimonial-author">
+            <div class="author-avatar" [style.background]="t.color">
+              {{ t.avatar }}
+            </div>
+            <div class="author-info">
+              <h4>{{ t.name }}</h4>
+              <p>{{ t.role }} en <strong>{{ t.company }}</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section class="faq" id="faq">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">FAQ</span>
+        <h2>Preguntas frecuentes</h2>
+        <p>Todo lo que necesitas saber antes de comenzar.</p>
+      </div>
+      <div class="faq-list">
+        <div
+          class="faq-item"
+          *ngFor="let faq of faqs; let i = index"
+          [class.open]="faq.open"
+        >
+          <button class="faq-question" (click)="toggleFaq(i)">
+            <span>{{ faq.question }}</span>
+            <i class="bi" [class.bi-plus-lg]="!faq.open" [class.bi-dash-lg]="faq.open"></i>
+          </button>
+          <div class="faq-answer" [class.visible]="faq.open">
+            <p>{{ faq.answer }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA FINAL ===== -->
+  <section class="cta">
+    <div class="cta-bg">
+      <div class="cta-circle c1"></div>
+      <div class="cta-circle c2"></div>
+    </div>
+    <div class="cta-container">
+      <i class="bi bi-mortarboard-fill cta-icon"></i>
+      <h2>¿Listo para transformar tu carrera?</h2>
+      <p>Únete a más de 50,000 estudiantes que ya están aprendiendo con Academix. Comienza gratis hoy.</p>
+      <div class="cta-actions">
+        <a routerLink="/auth/register" class="btn-cta-primary">
+          Crear cuenta gratis
+          <i class="bi bi-arrow-right"></i>
+        </a>
+        <a routerLink="/auth/login" class="btn-cta-secondary">
+          Ya tengo cuenta
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <i class="bi bi-mortarboard-fill"></i>
+          <span>Academix</span>
+        </div>
+        <p>La plataforma de aprendizaje online que te lleva al siguiente nivel profesional.</p>
+        <div class="footer-social">
+          <a href="#"><i class="bi bi-twitter-x"></i></a>
+          <a href="#"><i class="bi bi-linkedin"></i></a>
+          <a href="#"><i class="bi bi-instagram"></i></a>
+          <a href="#"><i class="bi bi-youtube"></i></a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Plataforma</h4>
+          <a href="#">Cursos</a>
+          <a href="#">Instructores</a>
+          <a href="#">Certificados</a>
+          <a href="#">Blog</a>
+        </div>
+        <div class="footer-col">
+          <h4>Empresa</h4>
+          <a href="#">Sobre nosotros</a>
+          <a href="#">Trabaja con nosotros</a>
+          <a href="#">Prensa</a>
+          <a href="#">Contacto</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="#">Términos de uso</a>
+          <a href="#">Privacidad</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+  <p>&copy; 2026 Academix. Todos los derechos reservados.</p>
+  <p class="footer-credit">
+    Diseñado y desarrollado por
+    <a href="https://novaweb-livid.vercel.app" target="_blank" rel="noopener">
+      NovaWeb
+    </a>
+  </p>
+</div>
+  </footer>
+</div>
+<app-chatbot-widget [context]="'landing'"></app-chatbot-widget>

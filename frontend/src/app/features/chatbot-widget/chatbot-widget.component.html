@@ -1,0 +1,71 @@
+<div class="chatbot-wrapper">
+
+  <!-- Burbuja flotante -->
+  <button class="chat-bubble" (click)="toggleChat()" [class.open]="isOpen">
+    <i class="bi" [class.bi-chat-dots-fill]="!isOpen" [class.bi-x-lg]="isOpen"></i>
+    <span class="bubble-ping" *ngIf="!isOpen"></span>
+  </button>
+
+  <!-- Panel del chat -->
+  <div class="chat-panel" [class.visible]="isOpen">
+
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="chat-avatar">
+          <i class="bi bi-mortarboard-fill"></i>
+        </div>
+        <div>
+          <strong>{{ label }}</strong>
+          <span class="chat-status">
+            <span class="status-dot"></span>
+            En línea
+          </span>
+        </div>
+      </div>
+      <button class="chat-close" (click)="toggleChat()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Mensajes -->
+    <div class="chat-messages">
+      <div
+        class="chat-message"
+        *ngFor="let msg of history"
+        [class.user]="msg.role === 'user'"
+        [class.bot]="msg.role === 'model'"
+      >
+        <div class="message-avatar" *ngIf="msg.role === 'model'">
+          <i class="bi bi-mortarboard-fill"></i>
+        </div>
+        <div class="message-bubble" [innerHTML]="msg.role === 'model' ? formatMessage(msg.text) : msg.text"></div>
+      </div>
+
+      <!-- Typing indicator -->
+      <div class="chat-message bot" *ngIf="isTyping">
+        <div class="message-avatar">
+          <i class="bi bi-mortarboard-fill"></i>
+        </div>
+        <div class="message-bubble typing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-area">
+      <textarea
+        [(ngModel)]="userInput"
+        (keydown)="onKeydown($event)"
+        placeholder="Escribí tu mensaje..."
+        rows="1"
+        [disabled]="isTyping"
+      ></textarea>
+      <button class="send-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || isTyping">
+        <i class="bi bi-send-fill"></i>
+      </button>
+    </div>
+
+  </div>
+</div>

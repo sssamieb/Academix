@@ -1,0 +1,224 @@
+<div class="lesson-wrap">
+
+  <div class="preview-banner">
+    <div class="preview-banner-left">
+      <i class="bi bi-shield-check-fill"></i>
+      <span>Revisión de lección — Vista del administrador</span>
+    </div>
+    <button class="btn-back-preview" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i>
+      Volver al curso
+    </button>
+  </div>
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando lección...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && lesson">
+    <div class="lesson-layout">
+
+      <aside class="lesson-sidebar">
+        <div class="sidebar-course-title">
+          <span>{{ course?.title }}</span>
+        </div>
+
+        <ng-container *ngFor="let sec of getContentSections(); let si = index">
+          <div class="sidebar-section-title">
+            <div class="sidebar-section-num">{{ si + 1 }}</div>
+            <span>{{ sec.title }}</span>
+          </div>
+
+          <ng-container *ngFor="let les of sec.lessons">
+
+            <div class="sidebar-item"
+              *ngIf="les.video_url"
+              [class.active]="lesson?.id === les.id && !isQuizMode"
+              (click)="goToLesson(les, 'video')">
+              <div class="sidebar-item-icon video">
+                <i class="bi bi-play-circle-fill"></i>
+              </div>
+              <div class="sidebar-item-info">
+                <span class="sidebar-item-type">Video</span>
+                <span class="sidebar-item-title">{{ les.title }}</span>
+              </div>
+            </div>
+
+            <div class="sidebar-item"
+              *ngIf="les.article_content"
+              [class.active]="lesson?.id === les.id && !isQuizMode"
+              (click)="goToLesson(les, 'article')">
+              <div class="sidebar-item-icon article">
+                <i class="bi bi-file-text-fill"></i>
+              </div>
+              <div class="sidebar-item-info">
+                <span class="sidebar-item-type">Artículo</span>
+                <span class="sidebar-item-title">{{ les.title }}</span>
+              </div>
+            </div>
+
+            <div class="sidebar-item"
+              *ngIf="les.quiz && les.quiz.is_active"
+              [class.active]="lesson?.id === les.id && isQuizMode"
+              (click)="goToLesson(les, 'quiz')">
+              <div class="sidebar-item-icon quiz">
+                <i class="bi bi-question-circle-fill"></i>
+              </div>
+              <div class="sidebar-item-info">
+                <span class="sidebar-item-type">Quiz</span>
+                <span class="sidebar-item-title">
+                  {{ les.quiz.questions?.length }} preguntas · {{ les.quiz.time_limit_minutes }} min
+                </span>
+              </div>
+            </div>
+
+          </ng-container>
+        </ng-container>
+      </aside>
+
+      <main class="lesson-main">
+
+        <!-- Modo video/artículo -->
+        <ng-container *ngIf="!isQuizMode">
+
+          <div class="lesson-header">
+            <h1>{{ lesson.title }}</h1>
+            <div class="lesson-meta" *ngIf="lesson.duration">
+              <i class="bi bi-clock"></i>
+              <span>{{ lesson.duration }} min</span>
+            </div>
+          </div>
+
+          <div class="video-container" *ngIf="lesson.video_url">
+            <iframe
+              [src]="getEmbedUrl(lesson.video_url) | safe"
+              frameborder="0" allowfullscreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+          </div>
+
+          <div class="article-container" *ngIf="lesson.article_content">
+            <div class="article-content ql-editor" [innerHTML]="lesson.article_content"></div>
+          </div>
+
+          <div class="notes-container" *ngIf="lesson.notes">
+            <div class="notes-header">
+              <i class="bi bi-sticky-fill"></i>
+              <h3>Notas de la lección</h3>
+            </div>
+            <div class="notes-content">{{ lesson.notes }}</div>
+          </div>
+
+        </ng-container>
+
+        <!-- Modo quiz -->
+        <ng-container *ngIf="isQuizMode && lesson.quiz">
+
+          <div class="quiz-start-screen" *ngIf="!quizStarted && !quizSubmitted">
+            <div class="quiz-start-icon">
+              <i class="bi bi-question-circle-fill"></i>
+            </div>
+            <h2>Quiz de práctica</h2>
+            <p>{{ lesson.title }}</p>
+            <div class="quiz-start-info">
+              <div class="quiz-info-item">
+                <i class="bi bi-list-ol"></i>
+                <span>{{ lesson.quiz.questions.length }} preguntas</span>
+              </div>
+              <div class="quiz-info-item">
+                <i class="bi bi-clock-fill"></i>
+                <span>{{ lesson.quiz.time_limit_minutes }} minutos</span>
+              </div>
+              <div class="quiz-info-item">
+                <i class="bi bi-trophy-fill"></i>
+                <span>Mínimo {{ lesson.quiz.passing_score }}% para aprobar</span>
+              </div>
+            </div>
+            <button class="btn-start-quiz" (click)="startQuiz()">
+              <i class="bi bi-play-fill"></i>
+              Comenzar quiz
+            </button>
+          </div>
+
+          <div class="quiz-in-progress" *ngIf="quizStarted && !quizSubmitted">
+            <div class="quiz-timer" [class.warning]="timerWarning">
+              <div class="timer-bar">
+                <div class="timer-fill" [style.width.%]="timerPercent"></div>
+              </div>
+              <div class="timer-display">
+                <i class="bi bi-clock-fill"></i>
+                <span>{{ timerDisplay }}</span>
+              </div>
+            </div>
+
+            <div class="quiz-questions-list">
+              <div class="quiz-question-block"
+                *ngFor="let q of lesson.quiz.questions; let qi = index">
+                <div class="question-number">Pregunta {{ qi + 1 }} de {{ lesson.quiz.questions.length }}</div>
+                <p class="question-text">{{ q.question }}</p>
+                <div class="options-grid">
+                  <button class="option-btn"
+                    *ngFor="let opt of q.options; let oi = index"
+                    [class.selected]="isSelected(qi, oi)"
+                    (click)="selectAnswer(qi, oi)">
+                    <span class="option-letter">{{ ['A','B','C','D'][oi] }}</span>
+                    <span class="option-text">{{ opt.option_text }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="quiz-submit-row">
+              <span class="answers-count">
+                {{ answeredCount }} de {{ lesson.quiz.questions.length }} respondidas
+              </span>
+              <button class="btn-submit-quiz" (click)="submitQuiz()">
+                <i class="bi bi-send-fill"></i>
+                Enviar respuestas
+              </button>
+            </div>
+          </div>
+
+          <div class="quiz-result" *ngIf="quizSubmitted">
+            <div class="result-icon" [class.passed]="quizPassed" [class.failed]="!quizPassed">
+              <i class="bi"
+                [class.bi-check-circle-fill]="quizPassed"
+                [class.bi-x-circle-fill]="!quizPassed"></i>
+            </div>
+            <h2>{{ quizPassed ? '¡Aprobado!' : 'No aprobado' }}</h2>
+            <p class="result-score">{{ quizScore }}%</p>
+            <p class="result-sub">Mínimo requerido: {{ lesson.quiz.passing_score }}%</p>
+
+            <div class="answers-review">
+              <div class="answer-review-block"
+                *ngFor="let q of lesson.quiz.questions; let qi = index">
+                <p class="question-text">{{ qi + 1 }}. {{ q.question }}</p>
+                <div class="review-options">
+                  <div class="review-option"
+                    *ngFor="let opt of q.options; let oi = index"
+                    [class.correct]="opt.is_correct"
+                    [class.wrong]="isSelected(qi, oi) && !opt.is_correct"
+                    [class.selected-correct]="isSelected(qi, oi) && opt.is_correct">
+                    <i class="bi"
+                      [class.bi-check-circle-fill]="opt.is_correct"
+                      [class.bi-x-circle-fill]="isSelected(qi, oi) && !opt.is_correct"
+                      [class.bi-circle]="!opt.is_correct && !isSelected(qi, oi)"></i>
+                    <span>{{ opt.option_text }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-retry" (click)="retryQuiz()">
+              <i class="bi bi-arrow-counterclockwise"></i>
+              Intentar de nuevo
+            </button>
+          </div>
+
+        </ng-container>
+
+      </main>
+    </div>
+  </ng-container>
+</div>

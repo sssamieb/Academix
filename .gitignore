@@ -1,4 +1,4 @@
-gitignore_content = """# --- Root / OS ---
+# --- Root / OS ---
 .DS_Store
 Thumbs.db
 .vscode/
@@ -28,13 +28,10 @@ Thumbs.db
 /frontend/connect.lock
 /frontend/coverage/
 /frontend/lib/
+/frontend/vendor/
 
 # --- Otros ---
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
 .env
-"""
-
-with open(".gitignore", "w") as f:
-    f.write(gitignore_content)

@@ -1,0 +1,122 @@
+<div class="verify-email-page">
+
+  <!-- Panel izquierdo decorativo -->
+  <div class="login-left">
+    <div class="left-content">
+
+      <a routerLink="/auth/login" class="back-home">
+        <i class="bi bi-arrow-left"></i>
+        Volver al inicio de sesión
+      </a>
+
+      <div class="left-brand">
+        <i class="bi bi-mortarboard-fill"></i>
+        <span>Academix</span>
+      </div>
+
+      <div class="left-text">
+        <h2>Casi listo para comenzar</h2>
+        <p>Verificá tu correo para activar tu cuenta y acceder a todos los cursos disponibles.</p>
+      </div>
+
+      <div class="left-tips">
+        <div class="left-tip">
+          <div class="tip-icon">
+            <i class="bi bi-envelope-check-fill"></i>
+          </div>
+          <div>
+            <strong>Revisá tu bandeja de entrada</strong>
+            <span>El correo puede tardar unos minutos en llegar.</span>
+          </div>
+        </div>
+        <div class="left-tip">
+          <div class="tip-icon">
+            <i class="bi bi-folder2-open"></i>
+          </div>
+          <div>
+            <strong>Revisá spam o promociones</strong>
+            <span>A veces los correos automáticos caen en estas carpetas.</span>
+          </div>
+        </div>
+        <div class="left-tip">
+          <div class="tip-icon">
+            <i class="bi bi-arrow-repeat"></i>
+          </div>
+          <div>
+            <strong>¿No llegó? Podés reenviar</strong>
+            <span>Usá el botón del formulario para solicitar otro correo.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="left-security-badge">
+        <i class="bi bi-shield-check-fill"></i>
+        <span>La verificación protege tu cuenta de accesos no autorizados.</span>
+      </div>
+
+    </div>
+    <div class="left-circles">
+      <div class="lc lc-1"></div>
+      <div class="lc lc-2"></div>
+      <div class="lc lc-3"></div>
+    </div>
+  </div>
+
+  <!-- Panel derecho -->
+  <div class="login-right">
+    <div class="login-form-container">
+
+      <div class="form-header">
+        <div class="form-header-icon">
+          <i class="bi bi-envelope-fill"></i>
+        </div>
+        <h1>Verificá tu correo</h1>
+        <p>Enviamos un enlace de verificación a tu dirección de correo.</p>
+      </div>
+
+      <div class="email-display">
+        <i class="bi bi-envelope-at"></i>
+        <span>{{ email }}</span>
+      </div>
+
+      <p class="instructions">
+        Revisá tu bandeja de entrada y hacé click en el enlace para activar tu cuenta.
+      </p>
+
+      <!-- Éxito reenvío -->
+      <div *ngIf="resendMessage" class="success-alert">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>{{ resendMessage }}</span>
+      </div>
+
+      <!-- Error reenvío -->
+      <div *ngIf="resendError" class="error-alert">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span>{{ resendError }}</span>
+      </div>
+
+      <div class="resend-section">
+        <p class="resend-label">¿No recibiste el correo?</p>
+        <button
+          type="button"
+          class="btn-submit"
+          (click)="resendEmail()"
+          [disabled]="isResending"
+        >
+          <span *ngIf="isResending" class="btn-spinner"></span>
+          <i *ngIf="!isResending" class="bi bi-send"></i>
+          {{ isResending ? 'Reenviando...' : 'Reenviar correo de verificación' }}
+        </button>
+      </div>
+
+      <div class="back-link">
+        <a routerLink="/auth/login">
+          <i class="bi bi-arrow-left"></i>
+          Volver al inicio de sesión
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+</div>

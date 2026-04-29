@@ -1,0 +1,101 @@
+<div class="verify-confirm-page">
+
+  <!-- Panel izquierdo decorativo -->
+  <div class="login-left">
+    <div class="left-content">
+
+      <div class="left-brand">
+        <i class="bi bi-mortarboard-fill"></i>
+        <span>Academix</span>
+      </div>
+
+      <div class="left-text">
+        <h2>Tu aprendizaje está a un paso</h2>
+        <p>Una vez verificada tu cuenta tendrás acceso completo a todos los cursos y tu progreso.</p>
+      </div>
+
+      <div class="left-stats">
+        <div class="left-stat">
+          <i class="bi bi-people-fill"></i>
+          <div>
+            <strong>50,000+</strong>
+            <span>Estudiantes activos</span>
+          </div>
+        </div>
+        <div class="left-stat">
+          <i class="bi bi-play-circle-fill"></i>
+          <div>
+            <strong>200+</strong>
+            <span>Cursos disponibles</span>
+          </div>
+        </div>
+        <div class="left-stat">
+          <i class="bi bi-patch-check-fill"></i>
+          <div>
+            <strong>98%</strong>
+            <span>Tasa de satisfacción</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="left-circles">
+      <div class="lc lc-1"></div>
+      <div class="lc lc-2"></div>
+      <div class="lc lc-3"></div>
+    </div>
+  </div>
+
+  <!-- Panel derecho: estado de verificación -->
+  <div class="login-right">
+    <div class="login-form-container">
+
+      <!-- Estado: verificando -->
+      <div *ngIf="status === 'loading'" class="status-card">
+        <div class="status-icon loading">
+          <div class="spinner-ring"></div>
+        </div>
+        <h1>Verificando tu cuenta</h1>
+        <p>Estamos procesando tu solicitud, no cerrés esta ventana...</p>
+      </div>
+
+      <!-- Estado: éxito -->
+      <div *ngIf="status === 'success'" class="status-card">
+        <div class="status-icon success">
+          <i class="bi bi-check-lg"></i>
+        </div>
+        <h1>¡Cuenta verificada!</h1>
+        <p>Tu correo fue verificado exitosamente. Ya podés iniciar sesión y comenzar a aprender.</p>
+        <div class="redirect-notice">
+          <i class="bi bi-arrow-right-circle"></i>
+          <span>Redirigiendo al inicio de sesión en <strong>{{ countdown }}</strong> segundos...</span>
+        </div>
+        <a routerLink="/auth/login" class="btn-submit">
+          <i class="bi bi-box-arrow-in-right"></i>
+          Ir al inicio de sesión ahora
+        </a>
+      </div>
+
+      <!-- Estado: error -->
+      <div *ngIf="status === 'error'" class="status-card">
+        <div class="status-icon error">
+          <i class="bi bi-x-lg"></i>
+        </div>
+        <h1>No pudimos verificar tu cuenta</h1>
+        <p>{{ errorMessage }}</p>
+        <div class="error-actions">
+          <a routerLink="/auth/login" class="btn-submit">
+            <i class="bi bi-box-arrow-in-right"></i>
+            Ir al inicio de sesión
+          </a>
+          <a routerLink="/auth/verify-email" [queryParams]="{ email: email }" class="btn-secondary">
+            <i class="bi bi-envelope"></i>
+            Reenviar correo de verificación
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

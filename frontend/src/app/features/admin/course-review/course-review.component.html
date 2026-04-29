@@ -1,0 +1,205 @@
+<main class="review-wrap">
+
+  <header class="page-header">
+    <div>
+      <h1>Revisión de cursos</h1>
+      <p>Revisá, aprobá o rechazá los cursos enviados por los instructores</p>
+    </div>
+  </header>
+
+  <!-- Success -->
+  <div class="success-banner" *ngIf="successMessage">
+    <i class="bi bi-check-circle-fill"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters">
+  <button class="filter-btn" [class.active]="filter === 'in_review'" (click)="setFilter('in_review')">
+    <span class="filter-dot review"></span>
+    En revisión
+    <span class="filter-count" *ngIf="inReviewCount > 0">{{ inReviewCount }}</span>
+  </button>
+  <button class="filter-btn" [class.active]="filter === 'published'" (click)="setFilter('published')">
+    <span class="filter-dot published"></span>
+    Publicados
+    <span class="filter-count" *ngIf="publishedCount > 0">{{ publishedCount }}</span>
+  </button>
+  <button class="filter-btn" [class.active]="filter === 'rejected'" (click)="setFilter('rejected')">
+    <span class="filter-dot rejected"></span>
+    Rechazados
+    <span class="filter-count" *ngIf="rejectedCount > 0">{{ rejectedCount }}</span>
+  </button>
+  <button class="filter-btn" [class.active]="filter === 'all'" (click)="setFilter('all')">
+    Todos
+  </button>
+</div>
+
+  <!-- Loading -->
+  <div class="loading-wrap" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando cursos...</p>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!isLoading && filteredCourses.length === 0">
+    <i class="bi bi-inbox"></i>
+    <h3>No hay cursos aquí</h3>
+    <p *ngIf="filter === 'in_review'">No hay cursos pendientes de revisión.</p>
+    <p *ngIf="filter !== 'in_review'">No hay cursos con este estado.</p>
+  </div>
+
+  <!-- Lista de cursos -->
+  <div class="courses-list" *ngIf="!isLoading && filteredCourses.length > 0">
+    <div class="course-review-card" *ngFor="let course of filteredCourses">
+
+      <div class="course-review-header">
+        <div class="course-review-info">
+          <div class="course-review-meta">
+            <span class="status-badge" [class]="getStatusClass(course.status)">
+              {{ statusLabels[course.status] }}
+            </span>
+            <span class="category-tag">{{ course.category?.name }}</span>
+            <span class="level-tag">{{ course.level | titlecase }}</span>
+          </div>
+          <h3>{{ course.title }}</h3>
+          <p class="course-desc">{{ course.short_description }}</p>
+          <div class="course-review-footer-meta">
+            <span>
+              <i class="bi bi-person-fill"></i>
+              {{ course.instructor?.name }}
+            </span>
+            <span *ngIf="course.submitted_at">
+              <i class="bi bi-clock"></i>
+              Enviado {{ course.submitted_at | date:'d/MM/yyyy' }}
+            </span>
+            <span *ngIf="course.token_price">
+              <i class="bi bi-coin"></i>
+              {{ course.token_price }} tokens
+            </span>
+            <span *ngIf="course.launch_date">
+              <i class="bi bi-calendar-event"></i>
+              Lanzamiento: {{ course.launch_date | date:'d/MM/yyyy' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="course-review-actions">
+          <button class="btn-preview-admin" (click)="previewCourse(course.id)">
+            <i class="bi bi-eye"></i>
+            Ver curso
+          </button>
+
+          <ng-container *ngIf="course.status === 'in_review'">
+            <button class="btn-approve" (click)="openApprovePanel(course)">
+              <i class="bi bi-check-lg"></i>
+              Aprobar
+            </button>
+            <button class="btn-reject" (click)="openRejectPanel(course)">
+              <i class="bi bi-x-lg"></i>
+              Rechazar
+            </button>
+          </ng-container>
+
+          <button class="btn-unpublish" *ngIf="course.status === 'published'"
+            (click)="unpublish(course)">
+            <i class="bi bi-eye-slash"></i>
+            Despublicar
+          </button>
+        </div>
+      </div>
+
+      <!-- Motivo de rechazo -->
+      <div class="rejection-notice" *ngIf="course.status === 'rejected' && course.rejection_reason">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+          <strong>Motivo de rechazo:</strong>
+          <p>{{ course.rejection_reason }}</p>
+        </div>
+      </div>
+
+      <!-- Panel aprobar -->
+      <div class="action-panel approve-panel" *ngIf="approvePanel?.id === course.id">
+        <div class="action-panel-header">
+          <h4><i class="bi bi-check-circle-fill"></i> Aprobar curso</h4>
+          <button class="btn-close-action" (click)="closeApprovePanel()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="action-panel-body" [formGroup]="approveForm">
+          <div class="approve-fields">
+            <div class="field-group">
+              <label>Precio en tokens <span class="required">*</span></label>
+              <div class="token-input-wrap">
+                <i class="bi bi-coin"></i>
+                <input type="number" formControlName="token_price" min="1" placeholder="Ej: 150" />
+                <span>tokens</span>
+              </div>
+              <p class="field-hint">Basate en el nivel y contenido del curso.</p>
+            </div>
+            <div class="field-group">
+              <label>Preguntas del examen final</label>
+              <input type="number" formControlName="exam_questions" min="1" max="50" class="simple-input" />
+              <p class="field-hint">Cantidad de preguntas a tomar aleatoriamente de los quizzes.</p>
+            </div>
+            <div class="field-group">
+              <label>Fecha de lanzamiento <span class="optional">(opcional)</span></label>
+              <input type="date" formControlName="launch_date" class="simple-input" />
+              <p class="field-hint">Dejalo vacío para publicar inmediatamente. Usuarios Premium tendrán acceso anticipado.</p>
+            </div>
+          </div>
+
+          <div class="error-alert" *ngIf="errorMessage">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>{{ errorMessage }}</span>
+          </div>
+        </div>
+        <div class="action-panel-footer">
+          <button class="btn-cancel-action" (click)="closeApprovePanel()">Cancelar</button>
+          <button class="btn-confirm-approve" (click)="submitApprove()"
+            [disabled]="isApproving || approveForm.invalid">
+            <span class="btn-spinner" *ngIf="isApproving"></span>
+            <i class="bi bi-check-lg" *ngIf="!isApproving"></i>
+            {{ isApproving ? 'Aprobando...' : 'Confirmar aprobación' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel rechazar -->
+      <div class="action-panel reject-panel" *ngIf="rejectPanel?.id === course.id">
+        <div class="action-panel-header">
+          <h4><i class="bi bi-x-circle-fill"></i> Rechazar curso</h4>
+          <button class="btn-close-action" (click)="closeRejectPanel()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="action-panel-body">
+          <div class="field-group">
+            <label>Motivo del rechazo <span class="required">*</span></label>
+            <textarea
+              [(ngModel)]="rejectReason"
+              rows="4"
+              placeholder="Explicá al instructor qué debe corregir para que el curso pueda ser aprobado..."
+              class="reject-textarea"
+            ></textarea>
+          </div>
+          <div class="error-alert" *ngIf="errorMessage">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>{{ errorMessage }}</span>
+          </div>
+        </div>
+        <div class="action-panel-footer">
+          <button class="btn-cancel-action" (click)="closeRejectPanel()">Cancelar</button>
+          <button class="btn-confirm-reject" (click)="submitReject()"
+            [disabled]="isRejecting || !rejectReason.trim()">
+            <span class="btn-spinner" *ngIf="isRejecting"></span>
+            <i class="bi bi-x-lg" *ngIf="!isRejecting"></i>
+            {{ isRejecting ? 'Rechazando...' : 'Confirmar rechazo' }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>

@@ -1,0 +1,102 @@
+<main class="page-wrap">
+
+  <div class="page-header">
+    <div>
+      <h1>Mis cursos</h1>
+      <p>Gestioná y creá tu contenido educativo</p>
+    </div>
+    <button class="btn-create" (click)="goToCreate()">
+      <i class="bi bi-plus-lg"></i>
+      Nuevo curso
+    </button>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn" [class.active]="filter === 'all'"       (click)="setFilter('all')">Todos</button>
+    <button class="filter-btn" [class.active]="filter === 'draft'"     (click)="setFilter('draft')">Borradores</button>
+    <button class="filter-btn" [class.active]="filter === 'in_review'" (click)="setFilter('in_review')">En revisión</button>
+    <button class="filter-btn" [class.active]="filter === 'rejected'"  (click)="setFilter('rejected')">Rechazados</button>
+    <button class="filter-btn" [class.active]="filter === 'published'" (click)="setFilter('published')">Publicados</button>
+  </div>
+
+  <div class="loading-wrap" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando cursos...</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && filteredCourses.length === 0">
+    <i class="bi bi-journal-x"></i>
+    <h3>No hay cursos aquí</h3>
+    <p *ngIf="filter === 'all'">Todavía no creaste ningún curso. ¡Empezá ahora!</p>
+    <p *ngIf="filter !== 'all'">No tenés cursos con este estado.</p>
+    <button class="btn-create" (click)="goToCreate()" *ngIf="filter === 'all'">
+      <i class="bi bi-plus-lg"></i> Crear primer curso
+    </button>
+  </div>
+
+  <div class="courses-grid" *ngIf="!isLoading && filteredCourses.length > 0">
+    <div class="course-card" *ngFor="let course of filteredCourses">
+
+      <div class="course-card-header">
+        <div class="course-thumb">
+          <img *ngIf="course.thumbnail" [src]="course.thumbnail" [alt]="course.title" />
+          <div class="course-thumb-placeholder" *ngIf="!course.thumbnail">
+            <i class="bi bi-image"></i>
+          </div>
+        </div>
+        <span class="status-badge" [class]="getStatusClass(course.status)">
+          {{ statusLabels[course.status] }}
+        </span>
+      </div>
+
+      <div class="course-card-body">
+        <span class="course-category">{{ course.category?.name }}</span>
+        <h3>{{ course.title }}</h3>
+        <p class="course-desc">{{ course.short_description }}</p>
+
+        <div class="course-meta">
+          <span class="meta-item">
+            <i class="bi bi-people-fill"></i>
+            {{ course.enrollments_count }} estudiantes
+          </span>
+          <span class="meta-item">
+            <i class="bi bi-bar-chart-fill"></i>
+            {{ course.level | titlecase }}
+          </span>
+          <span class="meta-item" *ngIf="course.token_price">
+            <i class="bi bi-coin"></i>
+            {{ course.token_price }} tokens
+          </span>
+        </div>
+
+        <div class="rejection-notice" *ngIf="course.status === 'rejected' && course.rejection_reason">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <p>{{ course.rejection_reason }}</p>
+        </div>
+      </div>
+
+      <div class="course-card-footer">
+        <button
+          class="btn-delete"
+          *ngIf="course.status === 'draft'"
+          (click)="deleteCourse(course)">
+          <i class="bi bi-trash"></i>
+          
+        </button>
+        <button class="btn-edit" (click)="goToEdit(course.id)" [disabled]="course.status === 'in_review'">
+          <i class="bi bi-pencil"></i> Editar
+        </button>
+        <button class="btn-submit"
+          *ngIf="course.status === 'draft' || course.status === 'rejected'"
+          (click)="submitForReview(course)">
+          <i class="bi bi-send"></i> Enviar a revisión
+        </button>
+        <span class="review-notice" *ngIf="course.status === 'in_review'">
+          <i class="bi bi-clock"></i> En revisión
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+</main>

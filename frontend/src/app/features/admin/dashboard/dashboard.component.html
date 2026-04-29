@@ -1,0 +1,206 @@
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Dashboard</h1>
+        <p>Panel de administración</p>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date">
+          <i class="bi bi-calendar3"></i>
+          <span>{{ today | date:'EEEE, d MMMM yyyy' }}</span>
+        </div>
+        <button class="btn-register-instructor" (click)="goToRegisterInstructor()">
+          <i class="bi bi-person-plus-fill"></i>
+          Nuevo instructor
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats cards -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon students">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="stat-info">
+          <span>Estudiantes</span>
+          <h3>{{ stats.students }}</h3>
+          <p class="stat-change positive">
+            <i class="bi bi-arrow-up"></i>
+            12% este mes
+          </p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon instructors">
+          <i class="bi bi-person-badge-fill"></i>
+        </div>
+        <div class="stat-info">
+          <span>Instructores</span>
+          <h3>{{ stats.instructors }}</h3>
+          <p class="stat-change positive">
+            <i class="bi bi-arrow-up"></i>
+            3 nuevos
+          </p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon courses">
+          <i class="bi bi-play-btn-fill"></i>
+        </div>
+        <div class="stat-info">
+          <span>Cursos activos</span>
+          <h3>{{ stats.courses }}</h3>
+          <p class="stat-change positive">
+            <i class="bi bi-arrow-up"></i>
+            5 nuevos
+          </p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon revenue">
+          <i class="bi bi-currency-dollar"></i>
+        </div>
+        <div class="stat-info">
+          <span>Ingresos</span>
+          <h3>${{ stats.revenue }}</h3>
+          <p class="stat-change positive">
+            <i class="bi bi-arrow-up"></i>
+            8% este mes
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Acciones rápidas + actividad reciente -->
+    <section class="content-grid">
+
+      <!-- Acciones rápidas -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Acciones rápidas</h2>
+        </div>
+        <div class="quick-actions">
+          <button class="action-btn" (click)="goToRegisterInstructor()">
+            <div class="action-icon instructor">
+              <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <div class="action-text">
+              <strong>Registrar instructor</strong>
+              <span>Añade un nuevo instructor a la plataforma</span>
+            </div>
+            <i class="bi bi-chevron-right action-arrow"></i>
+          </button>
+
+          <button class="action-btn" (click)="goToCourses()">
+            <div class="action-icon course">
+              <i class="bi bi-play-btn-fill"></i>
+            </div>
+            <div class="action-text">
+              <strong>Revisar cursos</strong>
+              <span>Aprobá o rechazá cursos en revisión</span>
+            </div>
+            <i class="bi bi-chevron-right action-arrow"></i>
+          </button>
+
+          <button class="action-btn">
+            <div class="action-icon report">
+              <i class="bi bi-file-earmark-bar-graph-fill"></i>
+            </div>
+            <div class="action-text">
+              <strong>Ver reportes</strong>
+              <span>Estadísticas detalladas de la plataforma</span>
+            </div>
+            <i class="bi bi-chevron-right action-arrow"></i>
+          </button>
+
+          <button class="action-btn">
+            <div class="action-icon settings">
+              <i class="bi bi-gear-fill"></i>
+            </div>
+            <div class="action-text">
+              <strong>Configuración</strong>
+              <span>Ajusta los parámetros del sistema</span>
+            </div>
+            <i class="bi bi-chevron-right action-arrow"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Actividad reciente -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Actividad reciente</h2>
+          <span class="card-badge">Hoy</span>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item" *ngFor="let activity of recentActivity">
+            <div class="activity-dot" [class]="activity.type"></div>
+            <div class="activity-content">
+              <p>{{ activity.text }}</p>
+              <span>{{ activity.time }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Tabla de usuarios recientes -->
+    <section class="card table-card">
+      <div class="card-header">
+        <h2>Usuarios recientes</h2>
+        <button class="btn-view-all">
+          Ver todos
+          <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Fecha registro</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of recentUsers">
+              <td>
+                <div class="table-user">
+                  <div class="table-avatar" [style.background]="u.color">
+                    {{ u.initials }}
+                  </div>
+                  <div>
+                    <strong>{{ u.name }}</strong>
+                    <span>{{ u.email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge" [class]="u.role">
+                  {{ u.roleLabel }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge" [class.active]="u.active">
+                  <span class="status-dot"></span>
+                  {{ u.active ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="date-cell">{{ u.date }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>

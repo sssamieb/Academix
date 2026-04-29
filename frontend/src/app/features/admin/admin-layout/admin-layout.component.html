@@ -1,0 +1,72 @@
+<div class="admin-layout">
+
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <i class="bi bi-mortarboard-fill"></i>
+        <span *ngIf="!sidebarCollapsed">Academix</span>
+      </div>
+      <button class="collapse-btn" (click)="toggleSidebar()">
+        <i class="bi" [class.bi-chevron-left]="!sidebarCollapsed" [class.bi-chevron-right]="sidebarCollapsed"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <span class="nav-section-label" *ngIf="!sidebarCollapsed">Principal</span>
+        <a class="nav-item" routerLink="/admin/dashboard" routerLinkActive="active">
+          <i class="bi bi-grid-fill"></i>
+          <span *ngIf="!sidebarCollapsed">Dashboard</span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-section-label" *ngIf="!sidebarCollapsed">Gestión</span>
+        <a class="nav-item" routerLink="/admin/register-instructor" routerLinkActive="active">
+          <i class="bi bi-person-badge"></i>
+          <span *ngIf="!sidebarCollapsed">Instructores</span>
+        </a>
+        <a class="nav-item" routerLink="/admin/courses" routerLinkActive="active">
+          <i class="bi bi-play-btn"></i>
+          <span *ngIf="!sidebarCollapsed">Cursos</span>
+        </a>
+        <a class="nav-item" href="#">
+          <i class="bi bi-people"></i>
+          <span *ngIf="!sidebarCollapsed">Estudiantes</span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-section-label" *ngIf="!sidebarCollapsed">Sistema</span>
+        <a class="nav-item" href="#">
+          <i class="bi bi-bar-chart-line"></i>
+          <span *ngIf="!sidebarCollapsed">Reportes</span>
+        </a>
+        <a class="nav-item" href="#">
+          <i class="bi bi-gear"></i>
+          <span *ngIf="!sidebarCollapsed">Configuración</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar-small">{{ getInitials() }}</div>
+        <div class="user-details" *ngIf="!sidebarCollapsed">
+          <strong>{{ user?.name }}</strong>
+          <span>Administrador</span>
+        </div>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+    </div>
+  </aside>
+
+  <div class="layout-content">
+    <router-outlet></router-outlet>
+  </div>
+
+  <app-chatbot-widget [context]="'admin'"></app-chatbot-widget>
+
+</div>

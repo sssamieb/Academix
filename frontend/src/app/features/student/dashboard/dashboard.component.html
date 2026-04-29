@@ -1,0 +1,236 @@
+<div class="student-layout">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" [class.scrolled]="isScrolled">
+    <div class="navbar-brand">
+      <i class="bi bi-mortarboard-fill"></i>
+      <span>Academix</span>
+    </div>
+
+    <div class="navbar-center">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Buscar cursos, categorías..."
+          [(ngModel)]="searchQuery"
+          (focus)="onSearchFocus()"
+          (blur)="onSearchBlur()"
+        />
+        <button *ngIf="searchQuery" class="search-clear" (click)="searchQuery = ''">
+          <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="search-results" *ngIf="showSearchResults && searchQuery">
+          <div *ngIf="searchResults.length === 0" class="search-empty">
+            <i class="bi bi-search"></i>
+            <p>Sin resultados para "<strong>{{ searchQuery }}</strong>"</p>
+          </div>
+          <div class="search-result-item" *ngFor="let result of searchResults">
+            <div class="result-icon" [style.background]="result.color">
+              <i class="bi" [class]="result.icon"></i>
+            </div>
+            <div class="result-info">
+              <strong>{{ result.title }}</strong>
+              <span>{{ result.category }} · {{ result.instructor }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-right">
+      <button class="nav-link-btn">
+        <i class="bi bi-compass"></i>
+        Explorar
+      </button>
+      <button class="nav-link-btn">
+        <i class="bi bi-bookmark-fill"></i>
+        Guardados
+      </button>
+
+      <!-- Token badge -->
+      <div class="token-badge">
+        <i class="bi bi-coin"></i>
+        <span>{{ tokens }}</span>
+      </div>
+
+      <!-- Avatar menú -->
+      <div class="avatar-menu" (click)="toggleAvatarMenu()" [class.open]="avatarMenuOpen">
+        <div class="user-avatar">{{ getInitials() }}</div>
+        <div class="avatar-dropdown" *ngIf="avatarMenuOpen">
+          <div class="avatar-dropdown-header">
+            <strong>{{ user?.name }}</strong>
+            <span>{{ planName }}</span>
+          </div>
+          <hr>
+          <a href="#"><i class="bi bi-person-circle"></i> Mi perfil</a>
+          <a href="#"><i class="bi bi-patch-check-fill"></i> Certificados</a>
+          <a href="#"><i class="bi bi-gear"></i> Configuración</a>
+          <hr>
+          <button class="dropdown-logout" (click)="logout()">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- Hero / bienvenida -->
+    <section class="hero-section">
+      <div class="hero-text">
+        <h1>Hola de nuevo, <span>{{ getFirstName() }}</span> 👋</h1>
+        <p>Seguí donde lo dejaste. Tenés <strong>{{ stats.inProgress }}</strong> cursos en progreso.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-top">
+          <div class="plan-icon">
+            <i class="bi bi-rocket-takeoff-fill"></i>
+          </div>
+          <div>
+            <span class="plan-label">Tu plan actual</span>
+            <strong class="plan-name">{{ planName }}</strong>
+          </div>
+        </div>
+        <div class="token-info">
+          <div class="token-bar-wrap">
+            <div class="token-bar-label">
+              <i class="bi bi-coin"></i>
+              <span>{{ tokens }} tokens disponibles</span>
+            </div>
+            <div class="token-bar">
+              <div class="token-fill" [style.width]="tokenPercent + '%'"></div>
+            </div>
+          </div>
+          <button class="btn-upgrade">
+            <i class="bi bi-lightning-fill"></i>
+            Mejorar plan
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats rápidas -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon enrolled">
+          <i class="bi bi-collection-play-fill"></i>
+        </div>
+        <div class="stat-info">
+          <span>Inscritos</span>
+          <h3>{{ stats.enrolled }}</h3>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon in-progress">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="stat-info">
+          <span>En progreso</span>
+          <h3>{{ stats.inProgress }}</h3>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon completed">
+          <i class="bi bi-patch-check-fill"></i>
+        </div>
+        <div class="stat-info">
+          <span>Completados</span>
+          <h3>{{ stats.completed }}</h3>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon hours">
+          <i class="bi bi-clock-fill"></i>
+        </div>
+        <div class="stat-info">
+          <span>Horas aprendidas</span>
+          <h3>{{ stats.hours }}h</h3>
+        </div>
+      </div>
+    </section>
+
+    <!-- Continuar aprendiendo -->
+    <section class="section-block">
+      <div class="section-header">
+        <h2>Continuar aprendiendo</h2>
+        <button class="btn-view-all">Ver todos <i class="bi bi-arrow-right"></i></button>
+      </div>
+      <div class="courses-grid">
+        <div class="course-card" *ngFor="let course of myCourses">
+          <div class="course-thumb" [style.background]="course.color">
+            <i class="bi" [class]="course.icon"></i>
+            <span class="course-badge" [class.badge-done]="course.status === 'completed'">
+              {{ course.status === 'completed' ? 'Completado' : course.progress + '%' }}
+            </span>
+          </div>
+          <div class="course-body">
+            <span class="course-category">{{ course.category }}</span>
+            <h3>{{ course.title }}</h3>
+            <p class="course-instructor">
+              <i class="bi bi-person-fill"></i> {{ course.instructor }}
+            </p>
+            <div class="progress-wrap">
+              <div class="progress-bar">
+                <div
+                  class="progress-fill"
+                  [style.width]="course.progress + '%'"
+                  [class.done]="course.status === 'completed'"
+                ></div>
+              </div>
+              <span>{{ course.doneLessons }}/{{ course.totalLessons }} lecciones</span>
+            </div>
+            <div class="course-footer">
+              <span class="last-access"><i class="bi bi-clock"></i> {{ course.lastAccess }}</span>
+              <button class="btn-continue" [class.btn-review]="course.status === 'completed'">
+                <i class="bi" [class.bi-play-fill]="course.status !== 'completed'" [class.bi-arrow-repeat]="course.status === 'completed'"></i>
+                {{ course.status === 'completed' ? 'Repasar' : 'Continuar' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recomendados -->
+    <section class="section-block">
+      <div class="section-header">
+        <div>
+          <h2>Recomendados para ti</h2>
+          <p class="section-subtitle">Basado en tus cursos y progreso</p>
+        </div>
+        <button class="btn-view-all">Ver catálogo <i class="bi bi-arrow-right"></i></button>
+      </div>
+      <div class="suggested-grid">
+        <div class="suggested-card" *ngFor="let course of suggestedCourses">
+          <div class="suggested-thumb" [style.background]="course.color">
+            <i class="bi" [class]="course.icon"></i>
+          </div>
+          <div class="suggested-body">
+            <div class="suggested-reason">
+              <i class="bi bi-lightbulb-fill"></i> {{ course.reason }}
+            </div>
+            <h3>{{ course.title }}</h3>
+            <p><i class="bi bi-person-fill"></i> {{ course.instructor }}</p>
+            <div class="suggested-meta">
+              <div class="suggested-rating">
+                <i class="bi bi-star-fill"></i> {{ course.rating }}
+              </div>
+              <span>{{ course.students | number }} estudiantes</span>
+              <span class="token-cost">
+                <i class="bi bi-coin"></i> {{ course.tokenCost }} tokens
+              </span>
+            </div>
+            <button class="btn-enroll">
+              <i class="bi bi-cart-plus"></i> Inscribirme
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+<app-chatbot-widget [context]="'student'"></app-chatbot-widget>

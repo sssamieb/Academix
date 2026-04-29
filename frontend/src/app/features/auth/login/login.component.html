@@ -1,0 +1,158 @@
+<div class="login-page">
+
+  <!-- Panel izquierdo decorativo -->
+  <div class="login-left">
+    <div class="left-content">
+
+      <a routerLink="/" class="back-home">
+        <i class="bi bi-arrow-left"></i>
+        Volver al inicio
+      </a>
+
+      <div class="left-brand">
+        <i class="bi bi-mortarboard-fill"></i>
+        <span>Academix</span>
+      </div>
+
+      <div class="left-text">
+        <h2>Continúa tu aprendizaje donde lo dejaste</h2>
+        <p>Accede a tus cursos, certificados y progreso en un solo lugar.</p>
+      </div>
+
+      <div class="left-stats">
+        <div class="left-stat">
+          <i class="bi bi-people-fill"></i>
+          <div>
+            <strong>50,000+</strong>
+            <span>Estudiantes activos</span>
+          </div>
+        </div>
+        <div class="left-stat">
+          <i class="bi bi-play-circle-fill"></i>
+          <div>
+            <strong>200+</strong>
+            <span>Cursos disponibles</span>
+          </div>
+        </div>
+        <div class="left-stat">
+          <i class="bi bi-patch-check-fill"></i>
+          <div>
+            <strong>98%</strong>
+            <span>Tasa de satisfacción</span>
+          </div>
+        </div>
+      </div>
+
+      
+
+    </div>
+    <div class="left-circles">
+      <div class="lc lc-1"></div>
+      <div class="lc lc-2"></div>
+      <div class="lc lc-3"></div>
+    </div>
+  </div>
+
+  <!-- Panel derecho: formulario -->
+  <div class="login-right">
+    <div class="login-form-container">
+
+      <div class="form-header">
+        <h1>Bienvenido de nuevo</h1>
+        <p>Ingresa tus credenciales para continuar</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="errorMessage" class="error-alert">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <div class="input-wrapper" [class.error]="email?.invalid && email?.touched">
+            <i class="bi bi-envelope"></i>
+            <input
+              type="email"
+              id="email"
+              formControlName="email"
+              placeholder="correo@ejemplo.com"
+            />
+          </div>
+          <div class="field-error" *ngIf="email?.invalid && email?.touched">
+            <span *ngIf="email?.errors?.['required']">El email es obligatorio.</span>
+            <span *ngIf="email?.errors?.['email']">Ingresa un email válido.</span>
+          </div>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="form-group">
+          <div class="label-row">
+            <label for="password">Contraseña</label>
+            <a routerLink="/auth/forgot-password" class="forgot-link">
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+          <div class="input-wrapper" [class.error]="password?.invalid && password?.touched">
+            <i class="bi bi-lock"></i>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              placeholder="Mínimo 8 caracteres"
+            />
+            <button type="button" class="toggle-password" (click)="togglePassword()">
+              <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+            </button>
+          </div>
+          <div class="field-error" *ngIf="password?.invalid && password?.touched">
+            <span *ngIf="password?.errors?.['required']">La contraseña es obligatoria.</span>
+            <span *ngIf="password?.errors?.['minlength']">Mínimo 8 caracteres.</span>
+          </div>
+        </div>
+
+        <!-- Botón submit -->
+        <button type="submit" class="btn-submit" [disabled]="isLoading">
+          <span *ngIf="isLoading" class="btn-spinner"></span>
+          <i *ngIf="!isLoading" class="bi bi-box-arrow-in-right"></i>
+          {{ isLoading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
+        </button>
+
+      </form>
+
+      <!-- Divisor -->
+      <div class="divider">
+        <span>o continúa con</span>
+      </div>
+
+      <!-- Google -->
+      <button
+        type="button"
+        class="btn-google"
+        (click)="loginWithGoogle()"
+        [disabled]="googleLoading"
+      >
+        <span *ngIf="googleLoading" class="btn-spinner dark"></span>
+        <img
+          *ngIf="!googleLoading"
+          src="https://www.svgrepo.com/show/475656/google-color.svg"
+          alt="Google"
+          width="20"
+        />
+        {{ googleLoading ? 'Conectando...' : 'Continuar con Google' }}
+      </button>
+
+      <!-- Registro -->
+      <p class="register-link">
+        ¿No tienes cuenta?
+        <a routerLink="/auth/register">Crear cuenta gratis</a>
+      </p>
+
+    </div>
+  </div>
+
+</div>

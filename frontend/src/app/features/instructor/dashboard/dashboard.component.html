@@ -1,0 +1,180 @@
+<main class="main-content">
+
+  <section class="page-header">
+    <div class="page-header-text">
+      <h1>Dashboard <span>Instructor</span> 👋</h1>
+      <p>Aquí tenés un resumen de tu actividad.</p>
+    </div>
+    <div class="topbar-date">
+      <i class="bi bi-calendar3"></i>
+      <span>{{ today | date:'EEEE, d MMMM yyyy' }}</span>
+    </div>
+  </section>
+
+  <section class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon students"><i class="bi bi-people-fill"></i></div>
+      <div class="stat-info">
+        <span>Estudiantes</span>
+        <h3>{{ stats.students }}</h3>
+        <p class="stat-change positive"><i class="bi bi-arrow-up"></i> 8 nuevos esta semana</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon courses"><i class="bi bi-play-btn-fill"></i></div>
+      <div class="stat-info">
+        <span>Cursos activos</span>
+        <h3>{{ stats.courses }}</h3>
+        <p class="stat-change neutral"><i class="bi bi-dash"></i> Sin cambios</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon rating"><i class="bi bi-star-fill"></i></div>
+      <div class="stat-info">
+        <span>Valoración media</span>
+        <h3>{{ stats.rating }}</h3>
+        <p class="stat-change positive"><i class="bi bi-arrow-up"></i> +0.2 este mes</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon earnings"><i class="bi bi-currency-dollar"></i></div>
+      <div class="stat-info">
+        <span>Ganancias</span>
+        <h3>${{ stats.earnings }}</h3>
+        <p class="stat-change positive"><i class="bi bi-arrow-up"></i> 15% este mes</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-grid">
+    <div class="card courses-card">
+      <div class="card-header">
+        <h2>Mis cursos</h2>
+        <button class="btn-view-all" (click)="goToMyCourses()">
+          Ver todos <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div class="courses-loading" *ngIf="isLoading">
+        <div class="mini-spinner"></div>
+        <span>Cargando cursos...</span>
+      </div>
+
+      <!-- Empty -->
+      <div class="courses-empty" *ngIf="!isLoading && courses.length === 0">
+        <i class="bi bi-collection"></i>
+        <p>Todavía no tenés cursos creados.</p>
+        <button class="btn-create-first" (click)="goToMyCourses()">
+          <i class="bi bi-plus-circle"></i> Crear mi primer curso
+        </button>
+      </div>
+
+      <!-- Lista real -->
+      <div class="courses-list" *ngIf="!isLoading && courses.length > 0">
+        <div class="course-item"
+          *ngFor="let course of courses | slice:0:4"
+          (click)="goToEdit(course.id)">
+          <div class="course-thumb" [style.background]="getCourseColor(course)">
+            <i class="bi" [class]="getCourseIcon(course)"></i>
+          </div>
+          <div class="course-info">
+            <h4>{{ course.title }}</h4>
+            <div class="course-meta">
+              <span>
+                <i class="bi bi-people"></i>
+                {{ course.enrollments_count ?? 0 }} estudiantes
+              </span>
+              <span>
+                <i class="bi bi-tag"></i>
+                {{ course.category?.name }}
+              </span>
+            </div>
+            <div class="course-level">
+              <i class="bi bi-bar-chart-fill"></i>
+              <span>{{ course.level | titlecase }}</span>
+            </div>
+          </div>
+          <span class="course-status" [class]="course.status">
+            {{ getStatusLabel(course.status) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="card">
+        <div class="card-header">
+          <h2>Actividad reciente</h2>
+          <span class="card-badge">Hoy</span>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item" *ngFor="let activity of recentActivity">
+            <div class="activity-avatar" [style.background]="activity.color">{{ activity.initials }}</div>
+            <div class="activity-content">
+              <p><strong>{{ activity.name }}</strong> {{ activity.action }}</p>
+              <span>{{ activity.time }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Acciones rápidas</h2>
+        </div>
+        <div class="quick-actions">
+          <button class="action-btn">
+            <div class="action-icon create"><i class="bi bi-plus-circle-fill"></i></div>
+            <div class="action-text">
+              <strong>Crear nuevo curso</strong>
+              <span>Añade contenido a la plataforma</span>
+            </div>
+            <i class="bi bi-chevron-right action-arrow"></i>
+          </button>
+          <button class="action-btn">
+            <div class="action-icon message"><i class="bi bi-chat-dots-fill"></i></div>
+            <div class="action-text">
+              <strong>Mensajes</strong>
+              <span>3 mensajes sin leer</span>
+            </div>
+            <i class="bi bi-chevron-right action-arrow"></i>
+          </button>
+          <button class="action-btn">
+            <div class="action-icon stats"><i class="bi bi-bar-chart-fill"></i></div>
+            <div class="action-text">
+              <strong>Ver estadísticas</strong>
+              <span>Analiza tu rendimiento</span>
+            </div>
+            <i class="bi bi-chevron-right action-arrow"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card reviews-card">
+    <div class="card-header">
+      <h2>Reseñas recientes</h2>
+      <button class="btn-view-all">Ver todas <i class="bi bi-arrow-right"></i></button>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-item" *ngFor="let review of recentReviews">
+        <div class="review-header">
+          <div class="review-avatar" [style.background]="review.color">{{ review.initials }}</div>
+          <div class="review-meta">
+            <strong>{{ review.name }}</strong>
+            <span>{{ review.course }}</span>
+          </div>
+          <div class="review-stars">
+            <i class="bi bi-star-fill" *ngFor="let s of getStars(review.rating)"></i>
+            <i class="bi bi-star"      *ngFor="let s of getEmptyStars(review.rating)"></i>
+          </div>
+        </div>
+        <p class="review-text">"{{ review.text }}"</p>
+        <span class="review-date">{{ review.date }}</span>
+      </div>
+    </div>
+  </section>
+
+</main>

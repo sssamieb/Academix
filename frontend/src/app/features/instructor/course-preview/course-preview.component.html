@@ -1,0 +1,193 @@
+<div class="preview-wrap">
+
+  <!-- Barra de aviso instructor -->
+  <div class="preview-banner">
+    <div class="preview-banner-left">
+      <i class="bi bi-eye-fill"></i>
+      <span>Vista previa — Así verán el curso los estudiantes</span>
+    </div>
+    <button class="btn-back-editor" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i>
+      Volver al editor
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando vista previa...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && course">
+
+    <!-- Hero del curso -->
+    <div class="course-hero">
+      <div class="course-hero-content">
+        <div class="course-meta-top">
+          <span class="category-tag">{{ course.category?.name }}</span>
+          <span class="level-tag">{{ course.level | titlecase }}</span>
+        </div>
+        <h1>{{ course.title }}</h1>
+        <p class="course-short-desc">{{ shortDescription }}</p>
+        <div class="course-stats">
+          <div class="stat" *ngIf="getTotalDuration()">
+            <i class="bi bi-clock-fill"></i>
+            <span>{{ getTotalDuration() }}</span>
+          </div>
+          <div class="stat">
+            <i class="bi bi-play-circle-fill"></i>
+            <span>{{ getTotalLessons() }} lecciones</span>
+          </div>
+          <div class="stat">
+            <i class="bi bi-collection-fill"></i>
+            <span>{{ getContentSections().length }} secciones</span>
+          </div>
+          <div class="stat">
+            <i class="bi bi-patch-check-fill"></i>
+            <span>Certificado al completar</span>
+          </div>
+        </div>
+      </div>
+      <div class="course-hero-badge">
+        <div class="badge-icon">
+          <i class="bi bi-mortarboard-fill"></i>
+        </div>
+        <div class="badge-info">
+          <span class="badge-label">Curso</span>
+          <strong>{{ course.category?.name }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido del curso en acordeón -->
+    <div class="course-content">
+
+      <!-- Sección presentación -->
+      <div class="accordion-section presentation-accordion"
+        *ngIf="getPresentationSection()">
+        <div class="accordion-head" (click)="toggleSection(-1)">
+          <div class="accordion-head-left">
+            <div class="accordion-icon presentation">
+              <i class="bi bi-file-text-fill"></i>
+            </div>
+            <span>Presentación del curso</span>
+          </div>
+          <i class="bi"
+            [class.bi-chevron-down]="expandedSections[-1]"
+            [class.bi-chevron-right]="!expandedSections[-1]"></i>
+        </div>
+        <div class="accordion-body" *ngIf="expandedSections[-1]">
+          <div class="presentation-rendered ql-editor"
+            [innerHTML]="getPresentationSection()?.presentation_content">
+          </div>
+        </div>
+      </div>
+
+      <!-- Secciones de contenido -->
+      <div class="accordion-section"
+        *ngFor="let section of getContentSections(); let si = index">
+
+        <div class="accordion-head" (click)="toggleSection(si)">
+          <div class="accordion-head-left">
+            <div class="accordion-icon numbered">{{ si + 1 }}</div>
+            <span>{{ section.title }}</span>
+          </div>
+          <i class="bi"
+            [class.bi-chevron-down]="expandedSections[si]"
+            [class.bi-chevron-right]="!expandedSections[si]"></i>
+        </div>
+
+        <div class="accordion-body" *ngIf="expandedSections[si]">
+
+          <ng-container *ngFor="let lesson of section.lessons">
+
+            <!-- Item: Video -->
+            <div class="content-item"
+              *ngIf="lesson.video_url"
+              (click)="navigateToLesson(lesson, 'video')">
+              <div class="content-item-left">
+                <div class="content-item-icon video">
+                  <i class="bi bi-play-circle-fill"></i>
+                </div>
+                <div class="content-item-info">
+                  <span class="content-item-label">Video</span>
+                  <span class="content-item-title">{{ lesson.title }}</span>
+                </div>
+              </div>
+              <div class="content-item-right">
+                <span class="content-duration" *ngIf="lesson.duration">
+                  {{ lesson.duration }} min
+                </span>
+                <i class="bi bi-chevron-right content-arrow"></i>
+              </div>
+            </div>
+
+            <!-- Item: Artículo -->
+            <div class="content-item"
+              *ngIf="lesson.article_content"
+              (click)="navigateToLesson(lesson, 'article')">
+              <div class="content-item-left">
+                <div class="content-item-icon article">
+                  <i class="bi bi-file-text-fill"></i>
+                </div>
+                <div class="content-item-info">
+                  <span class="content-item-label">Artículo</span>
+                  <span class="content-item-title">{{ lesson.title }}</span>
+                </div>
+              </div>
+              <div class="content-item-right">
+                <i class="bi bi-chevron-right content-arrow"></i>
+              </div>
+            </div>
+
+            <!-- Item: Quiz -->
+            <div class="content-item quiz-item"
+              *ngIf="lesson.quiz && lesson.quiz.is_active && lesson.quiz.questions?.length"
+              (click)="navigateToLesson(lesson, 'quiz')">
+              <div class="content-item-left">
+                <div class="content-item-icon quiz">
+                  <i class="bi bi-question-circle-fill"></i>
+                </div>
+                <div class="content-item-info">
+                  <span class="content-item-label">Quiz de práctica</span>
+                  <span class="content-item-title">
+                    {{ lesson.quiz.questions.length }} preguntas · {{ lesson.quiz.time_limit_minutes }} min
+                  </span>
+                </div>
+              </div>
+              <div class="content-item-right">
+                <span class="quiz-passing">{{ lesson.quiz.passing_score }}% para aprobar</span>
+                <i class="bi bi-chevron-right content-arrow"></i>
+              </div>
+            </div>
+
+          </ng-container>
+
+          <!-- Sección vacía -->
+          <div class="section-empty"
+            *ngIf="!section.lessons || section.lessons.length === 0">
+            <i class="bi bi-inbox"></i>
+            <span>Esta sección no tiene contenido todavía</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Examen final -->
+      <div class="accordion-section exam-accordion">
+        <div class="accordion-head exam-head">
+          <div class="accordion-head-left">
+            <div class="accordion-icon exam">
+              <i class="bi bi-clipboard-check-fill"></i>
+            </div>
+            <span>Examen final</span>
+          </div>
+          <i class="bi bi-lock-fill exam-lock"></i>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>

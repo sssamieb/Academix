@@ -1,0 +1,55 @@
+<div class="instructor-layout">
+
+  <nav class="navbar" [class.scrolled]="isScrolled">
+    <div class="navbar-brand">
+      <i class="bi bi-mortarboard-fill"></i>
+      <span>Academix</span>
+    </div>
+
+    <div class="navbar-links">
+      <a class="nav-link" routerLink="/instructor/dashboard" routerLinkActive="active">
+        <i class="bi bi-grid-fill"></i> Dashboard
+      </a>
+      <a class="nav-link" routerLink="/instructor/courses" routerLinkActive="active">
+        <i class="bi bi-play-btn"></i> Mis cursos
+      </a>
+      <a class="nav-link" href="#">
+        <i class="bi bi-people"></i> Estudiantes
+      </a>
+      <a class="nav-link" href="#">
+        <i class="bi bi-bar-chart-line"></i> Estadísticas
+      </a>
+      <a class="nav-link" href="#">
+        <i class="bi bi-star"></i> Reseñas
+      </a>
+    </div>
+
+    <div class="navbar-right">
+      <button class="btn-new-course" (click)="goToCreate()" *ngIf="showNewCourseBtn">
+        <i class="bi bi-plus-lg"></i>
+        Nuevo curso
+      </button>
+
+      <div class="avatar-menu" (click)="toggleAvatarMenu()" [class.open]="avatarMenuOpen">
+        <div class="user-avatar">{{ getInitials() }}</div>
+        <div class="avatar-dropdown" *ngIf="avatarMenuOpen">
+          <div class="avatar-dropdown-header">
+            <strong>{{ user?.name }}</strong>
+            <span>Instructor</span>
+          </div>
+          <hr>
+          <a href="#"><i class="bi bi-person-circle"></i> Mi perfil</a>
+          <a href="#"><i class="bi bi-gear"></i> Configuración</a>
+          <hr>
+          <button class="dropdown-logout" (click)="logout()">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Aquí se renderizan las páginas hijas -->
+  <router-outlet></router-outlet>
+<app-chatbot-widget [context]="'instructor'"></app-chatbot-widget>
+</div>

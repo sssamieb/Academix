@@ -1,0 +1,199 @@
+<main class="main-content">
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a routerLink="/admin/dashboard" class="back-link">
+        <i class="bi bi-arrow-left"></i>
+        Volver al dashboard
+      </a>
+      <h1>Registrar Instructor</h1>
+      <p>Añade un nuevo instructor a la plataforma</p>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <div class="content-grid">
+
+      <!-- Formulario -->
+      <div class="card form-card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon">
+              <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <div>
+              <h2>Datos del instructor</h2>
+              <p>Se generará una contraseña temporal automáticamente</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+
+          <div *ngIf="successMessage" class="success-alert">
+            <div class="alert-icon-box success">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="alert-content">
+              <h4>Instructor registrado exitosamente</h4>
+              <p>{{ successMessage }}</p>
+            </div>
+          </div>
+
+          <div *ngIf="temporaryPassword" class="temp-pass-card">
+            <div class="temp-pass-header">
+              <i class="bi bi-key-fill"></i>
+              <span>Contraseña temporal generada</span>
+            </div>
+            <div class="temp-pass-body">
+              <code>{{ temporaryPassword }}</code>
+              <p>
+                <i class="bi bi-info-circle"></i>
+                El instructor deberá cambiarla en su primer inicio de sesión.
+                Esta contraseña solo es visible una vez.
+              </p>
+            </div>
+          </div>
+
+          <div *ngIf="errorMessage" class="error-alert">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>{{ errorMessage }}</span>
+          </div>
+
+          <form [formGroup]="instructorForm" (ngSubmit)="onSubmit()">
+
+            <div class="form-group">
+              <label for="name">
+                <i class="bi bi-person"></i>
+                Nombre completo
+              </label>
+              <div class="input-wrapper" [class.error]="name?.invalid && name?.touched">
+                <input
+                  type="text"
+                  id="name"
+                  formControlName="name"
+                  placeholder="Nombre completo del instructor"
+                />
+              </div>
+              <div class="field-error" *ngIf="name?.invalid && name?.touched">
+                <span *ngIf="name?.errors?.['required']">El nombre es obligatorio.</span>
+                <span *ngIf="name?.errors?.['minlength']">Mínimo 3 caracteres.</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">
+                <i class="bi bi-envelope"></i>
+                Correo electrónico
+              </label>
+              <div class="input-wrapper" [class.error]="email?.invalid && email?.touched">
+                <input
+                  type="email"
+                  id="email"
+                  formControlName="email"
+                  placeholder="correo@ejemplo.com"
+                />
+              </div>
+              <div class="field-error" *ngIf="email?.invalid && email?.touched">
+                <span *ngIf="email?.errors?.['required']">El email es obligatorio.</span>
+                <span *ngIf="email?.errors?.['email']">Ingresa un email válido.</span>
+              </div>
+            </div>
+
+            <div class="info-box">
+              <i class="bi bi-shield-check"></i>
+              <div>
+                <strong>Proceso seguro</strong>
+                <p>
+                  Se generará automáticamente una contraseña temporal y se enviará
+                  un correo de verificación al instructor con sus credenciales de acceso.
+                </p>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <a routerLink="/admin/dashboard" class="btn-cancel">Cancelar</a>
+              <button type="submit" class="btn-submit" [disabled]="isLoading">
+                <span *ngIf="isLoading" class="btn-spinner"></span>
+                <i *ngIf="!isLoading" class="bi bi-person-plus-fill"></i>
+                {{ isLoading ? 'Registrando...' : 'Registrar instructor' }}
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Panel informativo -->
+      <div class="info-panel">
+
+        <div class="card">
+          <div class="card-header">
+            <h2>¿Cómo funciona?</h2>
+          </div>
+          <div class="card-body">
+            <div class="process-steps">
+              <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                  <strong>Registro</strong>
+                  <p>Completás el formulario con los datos del instructor.</p>
+                </div>
+              </div>
+              <div class="step-line"></div>
+              <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                  <strong>Correo automático</strong>
+                  <p>El sistema envía un email con sus credenciales y enlace de verificación.</p>
+                </div>
+              </div>
+              <div class="step-line"></div>
+              <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <strong>Verificación</strong>
+                  <p>El instructor verifica su correo haciendo click en el enlace.</p>
+                </div>
+              </div>
+              <div class="step-line"></div>
+              <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                  <strong>Primer acceso</strong>
+                  <p>Al iniciar sesión, el sistema le pedirá cambiar su contraseña temporal.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card tips-card">
+          <div class="card-header">
+            <h2>Recomendaciones</h2>
+          </div>
+          <div class="card-body">
+            <div class="tip-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <p>Usa el correo institucional del instructor cuando sea posible.</p>
+            </div>
+            <div class="tip-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <p>Verificá que el email sea correcto antes de registrar.</p>
+            </div>
+            <div class="tip-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <p>Informá al instructor que revisará su bandeja de entrada.</p>
+            </div>
+            <div class="tip-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <p>La contraseña temporal expira si no se usa en 24 horas.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</main>

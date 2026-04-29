@@ -1,0 +1,128 @@
+<main class="form-wrap">
+
+  <div class="form-header">
+    <button class="btn-back" (click)="cancel()">
+      <i class="bi bi-arrow-left"></i> Volver
+    </button>
+    <div class="form-header-info">
+      <h1>Crear nuevo curso</h1>
+      <p>Completá la información básica para empezar</p>
+    </div>
+  </div>
+
+  <div class="card form-card">
+    <div class="card-header">
+      <div class="card-title-wrap">
+        <div class="card-icon-box">
+          <i class="bi bi-mortarboard-fill"></i>
+        </div>
+        <div>
+          <h2>Información del curso</h2>
+          <p>Podés modificar estos datos después mientras el curso esté en borrador</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+
+      <div class="info-box">
+        <i class="bi bi-lightbulb-fill"></i>
+        <span>Una vez creado, podrás agregar el contenido de las secciones, lecciones y quizzes desde el editor del curso.</span>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-alert">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <form [formGroup]="courseForm" (ngSubmit)="onSubmit()">
+
+        <div class="form-group">
+          <label for="title">Título del curso <span class="required">*</span></label>
+          <input
+            id="title"
+            type="text"
+            formControlName="title"
+            placeholder="Ej: Introducción al Desarrollo Web con HTML y CSS"
+            [class.input-error]="title?.invalid && title?.touched"
+          />
+          <div class="field-error" *ngIf="title?.invalid && title?.touched">
+            <span *ngIf="title?.errors?.['required']">El título es obligatorio.</span>
+            <span *ngIf="title?.errors?.['minlength']">El título debe tener al menos 10 caracteres.</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="short_description">Descripción corta <span class="required">*</span></label>
+          <textarea
+            id="short_description"
+            formControlName="short_description"
+            rows="3"
+            placeholder="Resumí en una o dos oraciones de qué trata el curso..."
+            [class.input-error]="short_description?.invalid && short_description?.touched"
+          ></textarea>
+          <div class="form-group-footer">
+            <div class="field-error" *ngIf="short_description?.invalid && short_description?.touched">
+              <span *ngIf="short_description?.errors?.['required']">La descripción es obligatoria.</span>
+              <span *ngIf="short_description?.errors?.['maxlength']">Máximo 500 caracteres.</span>
+            </div>
+            <span class="char-count">{{ short_description?.value?.length || 0 }}/500</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="category_id">Categoría <span class="required">*</span></label>
+            <div class="select-wrap">
+              <select
+                id="category_id"
+                formControlName="category_id"
+                [class.input-error]="category_id?.invalid && category_id?.touched"
+              >
+                <option [ngValue]="null" disabled>Seleccioná una categoría</option>
+                <option *ngFor="let cat of categories" [ngValue]="cat.id">
+                  {{ cat.name }}
+                </option>
+              </select>
+              <i class="bi bi-chevron-down select-arrow"></i>
+            </div>
+            <div class="field-error" *ngIf="category_id?.invalid && category_id?.touched">
+              Seleccioná una categoría.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="level">Nivel <span class="required">*</span></label>
+            <div class="select-wrap">
+              <select
+                id="level"
+                formControlName="level"
+                [class.input-error]="level?.invalid && level?.touched"
+              >
+                <option value="" disabled>Seleccioná el nivel</option>
+                <option value="basico">Básico</option>
+                <option value="intermedio">Intermedio</option>
+                <option value="avanzado">Avanzado</option>
+              </select>
+              <i class="bi bi-chevron-down select-arrow"></i>
+            </div>
+            <div class="field-error" *ngIf="level?.invalid && level?.touched">
+              Seleccioná un nivel.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="cancel()">Cancelar</button>
+          <button type="submit" class="btn-save" [disabled]="isSaving || isLoading">
+            <span class="btn-spinner" *ngIf="isSaving"></span>
+            <i class="bi bi-plus-circle-fill" *ngIf="!isSaving"></i>
+            {{ isSaving ? 'Creando curso...' : 'Crear curso' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</main>
