@@ -116,7 +116,6 @@ private function generateFinalExam(Course $course, int $questionCount = 10): voi
     $examQuiz = $examLesson->quiz;
     if (!$examQuiz) {
         $examQuiz = $examLesson->quiz()->create([
-            'title'          => 'Examen final - ' . $course->title,
             'course_id'          => $course->id,
             'passing_score'      => 70,
             'time_limit_minutes' => 60,
