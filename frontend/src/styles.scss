@@ -39,3 +39,42 @@ body {
 .swal2-icon {
   border-width: 2px !important;
 }
+
+// ===== PREMIUM AVATAR GLOBAL =====
+.avatar-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &.premium::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F59E0B, #8B5CF6, #4F46E5, #EC4899, #F59E0B);
+    background-size: 300% 300%;
+    z-index: 0;
+    animation: premiumGlow 3s linear infinite;
+  }
+
+  .avatar-inner {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.premium-crown {
+  position: absolute;
+  top: -8px;
+  right: -4px;
+  font-size: 0.65rem;
+  z-index: 2;
+  line-height: 1;
+}
+
+@keyframes premiumGlow {
+  0%   { background-position: 0% 50%;   filter: hue-rotate(0deg);   }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%;   filter: hue-rotate(360deg); }
+}

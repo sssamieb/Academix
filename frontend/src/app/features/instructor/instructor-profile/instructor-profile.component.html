@@ -1,0 +1,153 @@
+<main class="profile-wrap">
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando perfil...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <div class="profile-layout">
+
+      <!-- Columna izquierda — vista pública -->
+      <aside class="profile-card">
+
+        <div class="avatar-section">
+          <div class="avatar-circle" [style.background]="selectedColor">
+            <span>{{ initials }}</span>
+          </div>
+          <h2>{{ user?.name }}</h2>
+          <p class="profile-title" *ngIf="profile?.title">{{ profile.title }}</p>
+          <p class="profile-title no-title" *ngIf="!profile?.title">Sin título profesional</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-item">
+            <strong>{{ stats?.courses ?? 0 }}</strong>
+            <span>Cursos</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <strong>{{ stats?.students ?? 0 }}</strong>
+            <span>Estudiantes</span>
+          </div>
+        </div>
+
+        <div class="bio-section" *ngIf="profile?.bio">
+          <p>{{ profile.bio }}</p>
+        </div>
+        <div class="bio-section empty-bio" *ngIf="!profile?.bio">
+          <p>Agregá una bio para que los estudiantes te conozcan mejor.</p>
+        </div>
+
+        <div class="social-links" *ngIf="profile?.linkedin || profile?.github || profile?.twitter || profile?.website">
+          <a [href]="profile.linkedin" target="_blank" *ngIf="profile?.linkedin" class="social-link linkedin">
+            <i class="bi bi-linkedin"></i>
+          </a>
+          <a [href]="profile.github" target="_blank" *ngIf="profile?.github" class="social-link github">
+            <i class="bi bi-github"></i>
+          </a>
+          <a [href]="profile.twitter" target="_blank" *ngIf="profile?.twitter" class="social-link twitter">
+            <i class="bi bi-twitter-x"></i>
+          </a>
+          <a [href]="profile.website" target="_blank" *ngIf="profile?.website" class="social-link website">
+            <i class="bi bi-globe"></i>
+          </a>
+        </div>
+
+        <!-- Cursos publicados -->
+        <div class="published-courses" *ngIf="courses.length > 0">
+          <h3>Mis cursos</h3>
+          <div class="course-mini" *ngFor="let course of courses">
+            <div class="course-mini-thumb"
+              [style.background]="getCategoryColor(course.category?.name)">
+              <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div class="course-mini-info">
+              <span>{{ course.title }}</span>
+              <small>{{ course.enrollments_count }} estudiantes</small>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Columna derecha — edición -->
+      <div class="profile-edit">
+
+        <div class="edit-section">
+          <h3>Información profesional</h3>
+
+          <div class="field-group">
+            <label>Título profesional</label>
+            <input type="text" [(ngModel)]="form.title"
+              placeholder="Ej: Desarrollador Full Stack con 10 años de experiencia"
+              class="field-input" maxlength="120" />
+            <small>{{ form.title.length }}/120</small>
+          </div>
+
+          <div class="field-group">
+            <label>Bio</label>
+            <textarea [(ngModel)]="form.bio"
+              placeholder="Contale a los estudiantes quién sos y qué podés enseñarles..."
+              rows="4" class="field-textarea" maxlength="1000"></textarea>
+            <small>{{ form.bio.length }}/1000</small>
+          </div>
+        </div>
+
+        <div class="edit-section">
+          <h3>Redes sociales</h3>
+
+          <div class="field-group">
+            <label><i class="bi bi-linkedin"></i> LinkedIn</label>
+            <input type="url" [(ngModel)]="form.linkedin"
+              placeholder="https://linkedin.com/in/tu-perfil"
+              class="field-input" />
+          </div>
+          <div class="field-group">
+            <label><i class="bi bi-github"></i> GitHub</label>
+            <input type="url" [(ngModel)]="form.github"
+              placeholder="https://github.com/tu-usuario"
+              class="field-input" />
+          </div>
+          <div class="field-group">
+            <label><i class="bi bi-twitter-x"></i> Twitter / X</label>
+            <input type="url" [(ngModel)]="form.twitter"
+              placeholder="https://x.com/tu-usuario"
+              class="field-input" />
+          </div>
+          <div class="field-group">
+            <label><i class="bi bi-globe"></i> Sitio web</label>
+            <input type="url" [(ngModel)]="form.website"
+              placeholder="https://tu-sitio.com"
+              class="field-input" />
+          </div>
+        </div>
+
+        <div class="edit-section">
+          <h3>Color de tu avatar</h3>
+          <div class="color-picker-wrap">
+            <div class="color-preview" [style.background]="selectedColor">
+              <span>{{ initials }}</span>
+            </div>
+            <div class="color-picker-controls">
+              <label class="color-picker-label">
+                <input type="color" [value]="selectedColor"
+                  (input)="onColorChange($event)" />
+                <span>Elegir color</span>
+                <i class="bi bi-palette-fill"></i>
+              </label>
+              <span class="color-hex">{{ selectedColor }}</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-save" (click)="save()" [disabled]="isSaving">
+          <span class="btn-spinner" *ngIf="isSaving"></span>
+          <i class="bi bi-check-lg" *ngIf="!isSaving"></i>
+          {{ isSaving ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+
+      </div>
+    </div>
+  </ng-container>
+</main>

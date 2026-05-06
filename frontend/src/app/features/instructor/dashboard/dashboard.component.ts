@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { InstructorCourseService, Course } from '../../../core/services/instructor-course.service';
+import { ReviewService } from '../../../core/services/review.service';
 
 @Component({
   selector: 'app-instructor-dashboard',
@@ -13,25 +14,13 @@ import { InstructorCourseService, Course } from '../../../core/services/instruct
 export class InstructorDashboardComponent implements OnInit {
   today = new Date();
 
-  stats = { students: 0, courses: 0, rating: '—', earnings: '—' };
+  stats = { students: 0, courses: 0, published: 0, avgRating: '—' };
 
-  courses:    Course[] = [];
-  isLoading = true;
+  courses:      Course[] = [];
+  recentReviews: any[]   = [];
+  isLoading     = true;
+  isLoadingReviews = true;
 
-  recentActivity = [
-    { name: 'Ana López',    action: 'se inscribió en tu curso',        time: 'Hace 5 min',   initials: 'AL', color: '#4F46E5' },
-    { name: 'Pedro García', action: 'completó una lección',            time: 'Hace 20 min',  initials: 'PG', color: '#10B981' },
-    { name: 'María Torres', action: 'dejó una reseña de 5 estrellas', time: 'Hace 1 hora',  initials: 'MT', color: '#F59E0B' },
-    { name: 'Luis Martín',  action: 'hizo una pregunta en el foro',   time: 'Hace 2 horas', initials: 'LM', color: '#EF4444' },
-  ];
-
-  recentReviews = [
-    { name: 'Ana López',    course: 'Angular & TypeScript desde cero', rating: 5, text: 'Excelente curso, muy completo y bien explicado.',          date: 'Hace 2 días', initials: 'AL', color: '#4F46E5' },
-    { name: 'Carlos Ruiz',  course: 'Laravel API REST completo',        rating: 5, text: 'El mejor curso de Laravel que he tomado.',                 date: 'Hace 3 días', initials: 'CR', color: '#06B6D4' },
-    { name: 'María García', course: 'MySQL para desarrolladores',       rating: 4, text: 'Muy buen contenido. Me gustaría más ejercicios prácticos.', date: 'Hace 5 días', initials: 'MG', color: '#10B981' },
-  ];
-
-  // Colores e iconos por categoría para mantener el diseño
   private categoryColors: Record<string, string> = {
     'Desarrollo Web':     '#4F46E5',
     'Backend':            '#EF4444',
@@ -58,12 +47,14 @@ export class InstructorDashboardComponent implements OnInit {
 
   constructor(
     private courseService: InstructorCourseService,
+    private reviewService: ReviewService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadCourses();
+    this.loadReviews();
   }
 
   loadCourses(): void {
@@ -72,15 +63,31 @@ export class InstructorDashboardComponent implements OnInit {
         this.courses   = res.courses;
         this.isLoading = false;
 
-        // Actualizar stats reales
-        this.stats.courses  = this.courses.length;
-        this.stats.students = this.courses.reduce(
+        this.stats.courses   = this.courses.length;
+        this.stats.published = this.courses.filter(c => c.status === 'published').length;
+        this.stats.students  = this.courses.reduce(
           (acc, c) => acc + (c.enrollments_count ?? 0), 0
         );
 
         this.cdr.detectChanges();
       },
       error: () => { this.isLoading = false; }
+    });
+  }
+
+  loadReviews(): void {
+    this.reviewService.getInstructorReviews().subscribe({
+      next: (res) => {
+        this.recentReviews   = res.reviews.slice(0, 3);
+        this.isLoadingReviews = false;
+
+        if (res.avg_rating) {
+          this.stats.avgRating = res.avg_rating.toString();
+        }
+
+        this.cdr.detectChanges();
+      },
+      error: () => { this.isLoadingReviews = false; }
     });
   }
 
@@ -105,9 +112,27 @@ export class InstructorDashboardComponent implements OnInit {
     return map[status] ?? status;
   }
 
-  goToMyCourses(): void { this.router.navigate(['/instructor/courses']); }
-  goToEdit(id: number): void { this.router.navigate(['/instructor/courses', id, 'edit']); }
+  getTimeAgo(dateStr: string): string {
+    const diff  = Date.now() - new Date(dateStr).getTime();
+    const mins  = Math.floor(diff / 60000);
+    const hours = Math.floor(mins / 60);
+    const days  = Math.floor(hours / 24);
+    if (days > 0)  return `hace ${days}d`;
+    if (hours > 0) return `hace ${hours}h`;
+    if (mins > 0)  return `hace ${mins}min`;
+    return 'ahora mismo';
+  }
+
+  getInitials(name: string): string {
+    return name?.split(' ').map((w: string) => w[0]).join('').substring(0, 2).toUpperCase() ?? '?';
+  }
 
   getStars(rating: number):      number[] { return Array(Math.floor(rating)).fill(0); }
   getEmptyStars(rating: number): number[] { return Array(5 - Math.floor(rating)).fill(0); }
+
+  goToMyCourses(): void  { this.router.navigate(['/instructor/courses']); }
+  goToEdit(id: number):void { this.router.navigate(['/instructor/courses', id, 'edit']); }
+  goToForum(): void      { this.router.navigate(['/instructor/forum']); }
+  goToReviews(): void    { this.router.navigate(['/instructor/reviews']); }
+  goToCreate(): void     { this.router.navigate(['/instructor/courses/create']); }
 }

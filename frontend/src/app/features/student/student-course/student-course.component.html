@@ -1,0 +1,262 @@
+<div class="course-wrap">
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando curso...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && course">
+
+    <div class="course-header">
+      <div class="course-header-content">
+        <button class="btn-back" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+          Mis cursos
+        </button>
+
+        <div class="course-meta">
+          <span class="category-tag">{{ course.category?.name }}</span>
+          <span class="trial-badge" *ngIf="isTrialEligible">
+            <i class="bi bi-clock-fill"></i>
+            Período de prueba
+          </span>
+        </div>
+
+        <h1>{{ course.title }}</h1>
+        <p class="instructor-line">
+          <i class="bi bi-person-fill"></i>
+          {{ course.instructor?.name }}
+        </p>
+
+        <div class="progress-section">
+          <div class="progress-info">
+            <span>{{ completedLessons }} de {{ totalLessons }} lecciones completadas</span>
+            <span [style.color]="progressPercent === 100 ? '#10B981' : 'inherit'">
+              {{ progressPercent === 100 ? '¡Completado! ' : progressPercent + '%' }}
+            </span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill"
+              [style.width.%]="progressPercent"
+              [class.done]="progressPercent === 100">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-content">
+
+      <!-- Presentación -->
+      <div class="accordion-item presentation-item" *ngIf="getPresentationSection()">
+        <div class="accordion-head" (click)="expandedSections[-1] = !expandedSections[-1]">
+          <div class="accordion-head-left">
+            <div class="section-icon presentation">
+              <i class="bi bi-file-text-fill"></i>
+            </div>
+            <span>Presentación del curso</span>
+          </div>
+          <i class="bi"
+            [class.bi-chevron-down]="expandedSections[-1]"
+            [class.bi-chevron-right]="!expandedSections[-1]"></i>
+        </div>
+        <div class="accordion-body" *ngIf="expandedSections[-1]">
+          <div class="presentation-content ql-editor"
+            [innerHTML]="getPresentationSection()?.presentation_content">
+          </div>
+        </div>
+      </div>
+
+      <!-- Secciones -->
+      <div class="accordion-item"
+        *ngFor="let section of getContentSections(); let si = index"
+        [class.locked]="!isSectionUnlocked(section.id)">
+
+        <div class="accordion-head" (click)="toggleSection(si)">
+          <div class="accordion-head-left">
+            <div class="section-icon numbered"
+              [class.unlocked]="isSectionUnlocked(section.id)"
+              [class.locked-icon]="!isSectionUnlocked(section.id)">
+              <span *ngIf="isSectionUnlocked(section.id)">{{ si + 1 }}</span>
+              <i class="bi bi-lock-fill" *ngIf="!isSectionUnlocked(section.id)"></i>
+            </div>
+            <div>
+              <span>{{ section.title }}</span>
+              <small *ngIf="!isSectionUnlocked(section.id)">
+                Completá la sección anterior para desbloquear
+              </small>
+            </div>
+          </div>
+          <i class="bi"
+            [class.bi-chevron-down]="expandedSections[si]"
+            [class.bi-chevron-right]="!expandedSections[si]"></i>
+        </div>
+
+        <div class="accordion-body" *ngIf="expandedSections[si]">
+          <ng-container *ngFor="let lesson of section.lessons">
+
+            <!-- Video -->
+            <div class="content-row"
+              *ngIf="lesson.video_url || lesson.type === 'video'"
+              [class.completed]="isLessonCompleted(lesson.id)"
+              [class.locked-row]="!isSectionUnlocked(section.id)"
+              (click)="openLesson(section, lesson)">
+              <div class="content-row-left">
+                <div class="content-icon video">
+                  <i class="bi bi-play-circle-fill" *ngIf="!isLessonCompleted(lesson.id)"></i>
+                  <i class="bi bi-check-circle-fill" *ngIf="isLessonCompleted(lesson.id)"></i>
+                </div>
+                <div class="content-info">
+                  <span class="content-type">Video</span>
+                  <span class="content-title">{{ lesson.title }}</span>
+                </div>
+              </div>
+              <div class="content-row-right">
+                <span class="duration" *ngIf="lesson.duration">{{ lesson.duration }} min</span>
+                <i class="bi bi-lock-fill lock" *ngIf="!isSectionUnlocked(section.id)"></i>
+                <i class="bi bi-chevron-right arrow" *ngIf="isSectionUnlocked(section.id)"></i>
+              </div>
+            </div>
+
+            <!-- Artículo -->
+            <div class="content-row"
+              *ngIf="lesson.article_content || lesson.type === 'article'"
+              [class.completed]="isLessonCompleted(lesson.id)"
+              [class.locked-row]="!isSectionUnlocked(section.id)"
+              (click)="openLesson(section, lesson)">
+              <div class="content-row-left">
+                <div class="content-icon article">
+                  <i class="bi bi-file-text-fill" *ngIf="!isLessonCompleted(lesson.id)"></i>
+                  <i class="bi bi-check-circle-fill" *ngIf="isLessonCompleted(lesson.id)"></i>
+                </div>
+                <div class="content-info">
+                  <span class="content-type">Artículo</span>
+                  <span class="content-title">{{ lesson.title }}</span>
+                </div>
+              </div>
+              <div class="content-row-right">
+                <i class="bi bi-lock-fill lock" *ngIf="!isSectionUnlocked(section.id)"></i>
+                <i class="bi bi-chevron-right arrow" *ngIf="isSectionUnlocked(section.id)"></i>
+              </div>
+            </div>
+
+            <!-- Quiz -->
+            <div class="content-row quiz-row"
+              *ngIf="lesson.quiz && lesson.quiz.is_active"
+              [class.passed]="isQuizPassed(lesson.quiz.id)"
+              [class.locked-row]="!isSectionUnlocked(section.id) || !canAttemptQuiz(lesson.quiz.id)"
+              (click)="isSectionUnlocked(section.id) && canAttemptQuiz(lesson.quiz.id) &&
+                router.navigate(['/student/my-courses', courseId, 'lessons', lesson.id, 'quiz'])">
+              <div class="content-row-left">
+                <div class="content-icon quiz">
+                  <i class="bi bi-question-circle-fill" *ngIf="!isQuizPassed(lesson.quiz.id)"></i>
+                  <i class="bi bi-check-circle-fill"    *ngIf="isQuizPassed(lesson.quiz.id)"></i>
+                </div>
+                <div class="content-info">
+                  <span class="content-type">Quiz de práctica</span>
+                  <span class="content-title">
+                    {{ lesson.quiz.questions?.length }} preguntas · {{ lesson.quiz.time_limit_minutes }} min
+                  </span>
+                </div>
+              </div>
+              <div class="content-row-right">
+                <span class="quiz-badge passed-badge" *ngIf="isQuizPassed(lesson.quiz.id)">
+                  Aprobado
+                </span>
+                <span class="quiz-badge attempts-badge"
+                  *ngIf="!isQuizPassed(lesson.quiz.id) && !unlimitedAttempts && isSectionUnlocked(section.id)">
+                  {{ getAttemptsLeft(lesson.quiz.id) }} intentos
+                </span>
+                <span class="quiz-badge no-attempts-badge"
+                  *ngIf="!canAttemptQuiz(lesson.quiz.id) && !isQuizPassed(lesson.quiz.id)">
+                  Sin intentos
+                </span>
+                <i class="bi bi-lock-fill lock" *ngIf="!isSectionUnlocked(section.id)"></i>
+                <i class="bi bi-chevron-right arrow"
+                  *ngIf="isSectionUnlocked(section.id) && canAttemptQuiz(lesson.quiz.id)"></i>
+              </div>
+            </div>
+
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Examen final -->
+      <div class="accordion-item exam-item"
+        [class.unlocked]="finalExamUnlocked"
+        [class.exam-passed]="examPassed">
+        <div class="accordion-head"
+          [class.exam-head]="!finalExamUnlocked && !examPassed"
+          [style.cursor]="finalExamUnlocked ? 'pointer' : 'default'"
+          (click)="finalExamUnlocked && goToExam()">
+          <div class="accordion-head-left">
+            <div class="section-icon exam" [class.exam-done]="examPassed">
+              <i class="bi bi-clipboard-check-fill" *ngIf="!examPassed"></i>
+              <i class="bi bi-patch-check-fill"     *ngIf="examPassed"></i>
+            </div>
+            <div>
+              <span>Examen final</span>
+              <small *ngIf="!finalExamUnlocked && !examPassed" style="color: #94A3B8;">
+                Completá todas las secciones para desbloquear
+              </small>
+              <small *ngIf="finalExamUnlocked && !examPassed" style="color: #10B981;">
+                ¡Disponible! Hacé click para comenzar
+              </small>
+              <small *ngIf="examPassed" style="color: #10B981; font-weight: 700;">
+                ✓ Aprobado — Ve tu certificado en tu perfil
+              </small>
+            </div>
+          </div>
+          <i class="bi bi-lock-fill lock-icon" *ngIf="!finalExamUnlocked && !examPassed"></i>
+          <i class="bi bi-check-circle-fill"   *ngIf="examPassed"
+            style="color: #10B981; font-size: 1rem;"></i>
+          <i class="bi bi-chevron-right"       *ngIf="finalExamUnlocked && !examPassed"
+            style="color: #10B981; font-size: 0.85rem;"></i>
+        </div>
+      </div>
+
+      <!-- Foro -->
+      <div class="accordion-item forum-item"
+        style="cursor: pointer;"
+        (click)="router.navigate(['/student/my-courses', courseId, 'forum'])">
+        <div class="accordion-head">
+          <div class="accordion-head-left">
+            <div class="section-icon forum">
+              <i class="bi bi-chat-dots-fill"></i>
+            </div>
+            <div>
+              <span>Foro del curso</span>
+              <small style="color: #94A3B8;">
+                Preguntá y participá con otros estudiantes
+              </small>
+            </div>
+          </div>
+          <i class="bi bi-chevron-right"></i>
+        </div>
+      </div>
+      
+      <!-- Reseñas -->
+      <div class="accordion-item"
+        style="cursor: pointer;"
+        (click)="router.navigate(['/student/my-courses', courseId, 'reviews'])">
+        <div class="accordion-head">
+          <div class="accordion-head-left">
+            <div class="section-icon" style="background: rgba(245,158,11,0.1);">
+              <i class="bi bi-star-fill" style="color: #F59E0B;"></i>
+            </div>
+            <div>
+              <span>Reseñas del curso</span>
+              <small style="color: #94A3B8;">
+                {{ examPassed ? 'Podés dejar tu reseña' : 'Ver opiniones de otros estudiantes' }}
+              </small>
+            </div>
+          </div>
+          <i class="bi bi-chevron-right"></i>
+        </div>
+      </div>
+
+
+    </div>
+
+  </ng-container>
+</div>

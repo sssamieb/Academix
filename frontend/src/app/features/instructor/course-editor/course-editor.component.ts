@@ -264,23 +264,38 @@ export class CourseEditorComponent implements OnInit {
 
   closeLessonPanel(): void { this.activeLessonPanel = null; }
 
-  saveLessonContent(): void {
-    if (!this.activeLessonPanel) return;
-    const { section, lesson } = this.activeLessonPanel;
+saveLessonContent(): void {
+  if (!this.activeLessonPanel) return;
+  const { section, lesson } = this.activeLessonPanel;
 
-    this.isSaving = true;
-    this.courseService.updateLesson(this.courseId, section.id, lesson.id, this.lessonForm.value).subscribe({
-      next: (res) => {
-        lesson.video_url       = res.lesson.video_url;
-        lesson.article_content = res.lesson.article_content;
-        lesson.notes           = res.lesson.notes;
-        lesson.duration        = res.lesson.duration;
-        this.isSaving = false;
-        this.cdr.detectChanges();
-      },
-      error: () => { this.isSaving = false; }
-    });
-  }
+  this.isSaving = true;
+  this.courseService.updateLesson(this.courseId, section.id, lesson.id, this.lessonForm.value).subscribe({
+    next: (res) => {
+      lesson.video_url       = res.lesson.video_url;
+      lesson.article_content = res.lesson.article_content;
+      lesson.notes           = res.lesson.notes;
+      lesson.duration        = res.lesson.duration;
+      this.isSaving = false;
+      this.cdr.detectChanges();
+      Swal.fire({
+        title: '¡Guardado!',
+        text: 'El contenido de la lección fue guardado.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+    error: () => {
+      this.isSaving = false;
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo guardar la lección.',
+        icon: 'error',
+        confirmButtonColor: '#4F46E5',
+      });
+    }
+  });
+}
 
   // ===== PANEL DE QUIZ =====
   openQuizPanel(lesson: Lesson): void {
@@ -318,17 +333,17 @@ export class CourseEditorComponent implements OnInit {
     return this.quizQuestions.at(questionIndex).get('options') as FormArray;
   }
 
-  addQuestion(): void {
-    this.quizQuestions.push(this.fb.group({
-      question: ['', Validators.required],
-      options:  this.fb.array([
-        this.fb.group({ option_text: ['', Validators.required], is_correct: [false] }),
-        this.fb.group({ option_text: ['', Validators.required], is_correct: [false] }),
-        this.fb.group({ option_text: ['', Validators.required], is_correct: [true]  }),
-        this.fb.group({ option_text: ['', Validators.required], is_correct: [false] }),
-      ]),
-    }));
-  }
+addQuestion(): void {
+  this.quizQuestions.push(this.fb.group({
+    question: ['', Validators.required],
+    options:  this.fb.array([
+      this.fb.group({ option_text: ['', Validators.required], is_correct: [false] }),
+      this.fb.group({ option_text: ['', Validators.required], is_correct: [false] }),
+      this.fb.group({ option_text: ['', Validators.required], is_correct: [false] }),
+      this.fb.group({ option_text: ['', Validators.required], is_correct: [false] }),
+    ]),
+  }));
+}
 
   removeQuestion(index: number): void {
     if (this.quizQuestions.length > 1) this.quizQuestions.removeAt(index);
@@ -342,21 +357,38 @@ export class CourseEditorComponent implements OnInit {
   this.router.navigate(['/instructor/courses', this.courseId, 'preview']);
 }
 
-  saveQuiz(): void {
-    if (!this.activeQuizPanel || this.quizForm.invalid) return;
+saveQuiz(): void {
+  if (!this.activeQuizPanel || this.quizForm.invalid) return;
 
-    this.isSaving = true;
-    const { quiz } = this.activeQuizPanel;
+  this.isSaving = true;
+  const { quiz } = this.activeQuizPanel;
 
-    this.courseService.updateQuiz(this.courseId, quiz.id, this.quizForm.value).subscribe({
-      next: (res) => {
-        this.activeQuizPanel!.lesson.quiz = res.quiz;
-        this.isSaving = false;
-        this.cdr.detectChanges();
-      },
-      error: () => { this.isSaving = false; }
-    });
-  }
+  this.courseService.updateQuiz(this.courseId, quiz.id, this.quizForm.value).subscribe({
+    next: (res) => {
+      this.activeQuizPanel!.lesson.quiz = res.quiz;
+      this.isSaving = false;
+      this.cdr.detectChanges();
+      Swal.fire({
+        title: '¡Quiz guardado!',
+        text: 'Las preguntas y configuración del quiz fueron guardadas.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+    error: () => {
+      this.isSaving = false;
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo guardar el quiz.',
+        icon: 'error',
+        confirmButtonColor: '#4F46E5',
+      });
+    }
+  });
+}
+
+
   toggleQuiz(lesson: Lesson): void {
   if (!lesson.quiz) return;
   const newState = !lesson.quiz.is_active;

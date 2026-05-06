@@ -1,0 +1,153 @@
+<div class="forum-wrap">
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando foro...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+
+    <!-- Header -->
+    <div class="forum-header">
+      <div class="forum-header-content">
+        <button class="btn-back" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+          Volver al curso
+        </button>
+        <div class="forum-header-info">
+          <h1><i class="bi bi-chat-dots-fill"></i> Foro del curso</h1>
+          <p *ngIf="course">{{ course.title }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="forum-content">
+
+      <!-- Banner premium -->
+      <div class="premium-banner" *ngIf="!canPost && !isInstructor">
+        <i class="bi bi-lightning-fill"></i>
+        <div>
+          <strong>Participá en el foro</strong>
+          <p>Mejorá al plan Premium para publicar preguntas y respuestas.</p>
+        </div>
+        <button class="btn-upgrade" (click)="router.navigate(['/student/plans'])">
+          Ver planes
+        </button>
+      </div>
+
+      <!-- Nueva publicación -->
+      <div class="new-post-card" *ngIf="canPost">
+        <div class="new-post-header">
+          <i class="bi bi-pencil-square"></i>
+          <span>Nueva publicación</span>
+        </div>
+        <textarea
+          [(ngModel)]="newPostContent"
+          placeholder="Escribí tu pregunta o comentario..."
+          class="post-textarea"
+          rows="4">
+        </textarea>
+        <div class="new-post-footer">
+          <span class="char-count"
+            [style.color]="newPostContent.length > 900 ? '#EF4444' : '#94A3B8'">
+            {{ newPostContent.length }}/1000
+          </span>
+          <button class="btn-publish"
+            (click)="submitPost()"
+            [disabled]="!newPostContent.trim() || isPosting || newPostContent.length > 1000">
+            <span *ngIf="isPosting" class="mini-spinner white"></span>
+            <i class="bi bi-send-fill" *ngIf="!isPosting"></i>
+            {{ isPosting ? 'Publicando...' : 'Publicar' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty -->
+      <div class="empty-state" *ngIf="forumPosts.length === 0">
+        <i class="bi bi-chat-square-dots"></i>
+        <h3>Todavía no hay publicaciones</h3>
+        <p *ngIf="canPost">¡Sé el primero en hacer una pregunta!</p>
+        <p *ngIf="!canPost">El foro está vacío por el momento.</p>
+      </div>
+
+      <!-- Posts -->
+      <div class="posts-list" *ngIf="forumPosts.length > 0">
+        <div class="post-card" *ngFor="let post of forumPosts">
+
+          <div class="post-header">
+            <div class="post-avatar" [style.background]="post.user?.avatar_color ?? '#4F46E5'">
+              {{ getInitials(post.user?.name) }}
+            </div>
+            <div class="post-meta">
+              <span class="post-username">{{ post.user?.name }}</span>
+              <span class="post-time">{{ getTimeAgo(post.created_at) }}</span>
+            </div>
+            <button class="btn-delete"
+              *ngIf="post.user_id === course?.enrollment?.user_id || isInstructor"
+              (click)="deletePost(post.id)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+
+          <div class="post-content">{{ post.content }}</div>
+
+          <!-- Respuestas -->
+          <div class="replies-wrap" *ngIf="post.replies?.length > 0">
+            <div class="replies-label">
+              <i class="bi bi-reply-all-fill"></i>
+              {{ post.replies.length }} respuesta{{ post.replies.length > 1 ? 's' : '' }}
+            </div>
+            <div class="replies-list">
+              <div class="reply-card"
+                *ngFor="let reply of post.replies"
+                [class.instructor-reply]="reply.user_id === course?.instructor_id">
+                <div class="reply-header">
+                  <div class="post-avatar small"
+                    [style.background]="reply.user?.avatar_color ?? '#4F46E5'">
+                    {{ getInitials(reply.user?.name) }}
+                  </div>
+                  <div class="post-meta">
+                    <span class="post-username">
+                      {{ reply.user?.name }}
+                      <span class="instructor-badge"
+                        *ngIf="reply.user_id === course?.instructor_id">
+                        Instructor
+                      </span>
+                    </span>
+                    <span class="post-time">{{ getTimeAgo(reply.created_at) }}</span>
+                  </div>
+                  <button class="btn-delete small"
+                    *ngIf="reply.user_id === course?.enrollment?.user_id || isInstructor"
+                    (click)="deleteReply(post.id, reply.id)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                <div class="reply-content">{{ reply.content }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Caja de respuesta -->
+          <div class="reply-box" *ngIf="canPost">
+            <textarea
+              [(ngModel)]="replyContent[post.id]"
+              placeholder="Escribí una respuesta..."
+              class="reply-textarea"
+              rows="2">
+            </textarea>
+            <button class="btn-reply"
+              (click)="submitReply(post.id)"
+              [disabled]="!replyContent[post.id]?.trim() || isReplying[post.id]">
+              <span *ngIf="isReplying[post.id]" class="mini-spinner white"></span>
+              <i class="bi bi-reply-fill" *ngIf="!isReplying[post.id]"></i>
+              {{ isReplying[post.id] ? 'Enviando...' : 'Responder' }}
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+</div>

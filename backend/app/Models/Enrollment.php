@@ -38,4 +38,8 @@ class Enrollment extends Model
     {
         return $this->hasOne(Certificate::class);
     }
+    public function isRefundEligible(): bool
+    {
+        return $this->status === 'trial';
+    }
 }

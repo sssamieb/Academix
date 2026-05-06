@@ -49,4 +49,12 @@ return [
         'key' => env('GROQ_API_KEY'),
     ],
 
+    'stripe' => [
+        'secret'        => env('STRIPE_SECRET_KEY'),
+        'publishable'   => env('STRIPE_PUBLISHABLE_KEY'),
+        'price_basic'   => env('STRIPE_PRICE_BASIC'),
+        'price_pro'     => env('STRIPE_PRICE_PRO'),
+        'price_premium' => env('STRIPE_PRICE_PREMIUM'),
+    ],
+
 ];

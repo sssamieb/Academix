@@ -21,7 +21,17 @@ class Lesson extends Model
 
     public function quiz()
     {
-    return $this->hasOne(Quiz::class)->where('type', 'practice');
+        return $this->hasOne(Quiz::class);
+    }
+
+    public function practiceQuiz()
+    {
+        return $this->hasOne(Quiz::class)->where('type', 'practice');
+    }
+
+    public function examQuiz()
+    {
+        return $this->hasOne(Quiz::class)->where('type', 'exam');
     }
 
     public function progress()

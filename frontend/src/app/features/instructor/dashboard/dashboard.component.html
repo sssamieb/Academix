@@ -11,42 +11,41 @@
     </div>
   </section>
 
+  <!-- Stats -->
   <section class="stats-grid">
     <div class="stat-card">
       <div class="stat-icon students"><i class="bi bi-people-fill"></i></div>
       <div class="stat-info">
-        <span>Estudiantes</span>
-        <h3>{{ stats.students }}</h3>
-        <p class="stat-change positive"><i class="bi bi-arrow-up"></i> 8 nuevos esta semana</p>
+        <span>Estudiantes totales</span>
+        <h3>{{ isLoading ? '—' : stats.students }}</h3>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon courses"><i class="bi bi-play-btn-fill"></i></div>
       <div class="stat-info">
-        <span>Cursos activos</span>
-        <h3>{{ stats.courses }}</h3>
-        <p class="stat-change neutral"><i class="bi bi-dash"></i> Sin cambios</p>
+        <span>Cursos creados</span>
+        <h3>{{ isLoading ? '—' : stats.courses }}</h3>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon published"><i class="bi bi-patch-check-fill"></i></div>
+      <div class="stat-info">
+        <span>Cursos publicados</span>
+        <h3>{{ isLoading ? '—' : stats.published }}</h3>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon rating"><i class="bi bi-star-fill"></i></div>
       <div class="stat-info">
         <span>Valoración media</span>
-        <h3>{{ stats.rating }}</h3>
-        <p class="stat-change positive"><i class="bi bi-arrow-up"></i> +0.2 este mes</p>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon earnings"><i class="bi bi-currency-dollar"></i></div>
-      <div class="stat-info">
-        <span>Ganancias</span>
-        <h3>${{ stats.earnings }}</h3>
-        <p class="stat-change positive"><i class="bi bi-arrow-up"></i> 15% este mes</p>
+        <h3>{{ isLoadingReviews ? '—' : stats.avgRating }}</h3>
       </div>
     </div>
   </section>
 
   <section class="content-grid">
+
+    <!-- Mis cursos -->
     <div class="card courses-card">
       <div class="card-header">
         <h2>Mis cursos</h2>
@@ -55,22 +54,19 @@
         </button>
       </div>
 
-      <!-- Loading -->
       <div class="courses-loading" *ngIf="isLoading">
         <div class="mini-spinner"></div>
         <span>Cargando cursos...</span>
       </div>
 
-      <!-- Empty -->
       <div class="courses-empty" *ngIf="!isLoading && courses.length === 0">
         <i class="bi bi-collection"></i>
         <p>Todavía no tenés cursos creados.</p>
-        <button class="btn-create-first" (click)="goToMyCourses()">
+        <button class="btn-create-first" (click)="goToCreate()">
           <i class="bi bi-plus-circle"></i> Crear mi primer curso
         </button>
       </div>
 
-      <!-- Lista real -->
       <div class="courses-list" *ngIf="!isLoading && courses.length > 0">
         <div class="course-item"
           *ngFor="let course of courses | slice:0:4"
@@ -81,14 +77,8 @@
           <div class="course-info">
             <h4>{{ course.title }}</h4>
             <div class="course-meta">
-              <span>
-                <i class="bi bi-people"></i>
-                {{ course.enrollments_count ?? 0 }} estudiantes
-              </span>
-              <span>
-                <i class="bi bi-tag"></i>
-                {{ course.category?.name }}
-              </span>
+              <span><i class="bi bi-people"></i> {{ course.enrollments_count ?? 0 }} estudiantes</span>
+              <span><i class="bi bi-tag"></i> {{ course.category?.name }}</span>
             </div>
             <div class="course-level">
               <i class="bi bi-bar-chart-fill"></i>
@@ -102,29 +92,16 @@
       </div>
     </div>
 
+    <!-- Panel derecho -->
     <div class="right-panel">
-      <div class="card">
-        <div class="card-header">
-          <h2>Actividad reciente</h2>
-          <span class="card-badge">Hoy</span>
-        </div>
-        <div class="activity-list">
-          <div class="activity-item" *ngFor="let activity of recentActivity">
-            <div class="activity-avatar" [style.background]="activity.color">{{ activity.initials }}</div>
-            <div class="activity-content">
-              <p><strong>{{ activity.name }}</strong> {{ activity.action }}</p>
-              <span>{{ activity.time }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
+      <!-- Acciones rápidas -->
       <div class="card">
         <div class="card-header">
           <h2>Acciones rápidas</h2>
         </div>
         <div class="quick-actions">
-          <button class="action-btn">
+          <button class="action-btn" (click)="goToCreate()">
             <div class="action-icon create"><i class="bi bi-plus-circle-fill"></i></div>
             <div class="action-text">
               <strong>Crear nuevo curso</strong>
@@ -132,47 +109,67 @@
             </div>
             <i class="bi bi-chevron-right action-arrow"></i>
           </button>
-          <button class="action-btn">
+          <button class="action-btn" (click)="goToForum()">
             <div class="action-icon message"><i class="bi bi-chat-dots-fill"></i></div>
             <div class="action-text">
-              <strong>Mensajes</strong>
-              <span>3 mensajes sin leer</span>
+              <strong>Ir al foro</strong>
+              <span>Respondé las preguntas de tus estudiantes</span>
             </div>
             <i class="bi bi-chevron-right action-arrow"></i>
           </button>
-          <button class="action-btn">
-            <div class="action-icon stats"><i class="bi bi-bar-chart-fill"></i></div>
+          <button class="action-btn" (click)="goToReviews()">
+            <div class="action-icon stats"><i class="bi bi-star-fill"></i></div>
             <div class="action-text">
-              <strong>Ver estadísticas</strong>
-              <span>Analiza tu rendimiento</span>
+              <strong>Ver reseñas</strong>
+              <span>Opiniones de tus estudiantes</span>
             </div>
             <i class="bi bi-chevron-right action-arrow"></i>
           </button>
         </div>
       </div>
+
     </div>
   </section>
 
+  <!-- Reseñas recientes -->
   <section class="card reviews-card">
     <div class="card-header">
       <h2>Reseñas recientes</h2>
-      <button class="btn-view-all">Ver todas <i class="bi bi-arrow-right"></i></button>
+      <button class="btn-view-all" (click)="goToReviews()">
+        Ver todas <i class="bi bi-arrow-right"></i>
+      </button>
     </div>
-    <div class="reviews-grid">
+
+    <div class="courses-loading" *ngIf="isLoadingReviews">
+      <div class="mini-spinner"></div>
+      <span>Cargando reseñas...</span>
+    </div>
+
+    <div class="courses-empty" *ngIf="!isLoadingReviews && recentReviews.length === 0">
+      <i class="bi bi-star"></i>
+      <p>Todavía no tenés reseñas. ¡Seguí publicando contenido!</p>
+    </div>
+
+    <div class="reviews-grid" *ngIf="!isLoadingReviews && recentReviews.length > 0">
       <div class="review-item" *ngFor="let review of recentReviews">
         <div class="review-header">
-          <div class="review-avatar" [style.background]="review.color">{{ review.initials }}</div>
+          <div class="review-avatar" [style.background]="review.user?.avatar_color ?? '#4F46E5'">
+            {{ getInitials(review.user?.name) }}
+          </div>
           <div class="review-meta">
-            <strong>{{ review.name }}</strong>
-            <span>{{ review.course }}</span>
+            <strong>{{ review.user?.name }}</strong>
+            <span>{{ review.course?.title }}</span>
           </div>
           <div class="review-stars">
-            <i class="bi bi-star-fill" *ngFor="let s of getStars(review.rating)"></i>
-            <i class="bi bi-star"      *ngFor="let s of getEmptyStars(review.rating)"></i>
+            <i class="bi bi-star-fill" *ngFor="let s of getStars(review.rating)"
+              style="color: #F59E0B;"></i>
+            <i class="bi bi-star" *ngFor="let s of getEmptyStars(review.rating)"
+              style="color: #CBD5E1;"></i>
           </div>
         </div>
-        <p class="review-text">"{{ review.text }}"</p>
-        <span class="review-date">{{ review.date }}</span>
+        <p class="review-text" *ngIf="review.comment">"{{ review.comment }}"</p>
+        <p class="review-text no-comment" *ngIf="!review.comment">Sin comentario.</p>
+        <span class="review-date">{{ getTimeAgo(review.created_at) }}</span>
       </div>
     </div>
   </section>

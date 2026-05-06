@@ -738,3 +738,76 @@ $border:    #E2E8F0;
   .stats-grid     { grid-template-columns: repeat(2, 1fr); }
   .main-content   { padding: 1rem; }
 }
+
+.courses-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: $gray;
+  font-size: 0.85rem;
+}
+
+.mini-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid $border;
+  border-top-color: $secondary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.courses-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem;
+  text-align: center;
+  color: $gray;
+
+  i { font-size: 2.5rem; color: #CBD5E1; }
+  p { font-size: 0.88rem; }
+}
+
+.btn-explore-first {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: $secondary;
+  color: $white;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover { background: $primary; }
+}
+
+.status-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+
+  &.trial   { background: #FEF3C7; color: #92400E; }
+  &.active  { background: #EEF2FF; color: #4F46E5; }
+  &.completed { background: #ECFDF5; color: #065F46; }
+}
+
+.btn-review {
+  background: #ECFDF5 !important;
+  color: #10B981 !important;
+  &:hover { background: #D1FAE5 !important; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid   { grid-template-columns: 1fr; }
+  .main-content { padding: 0.75rem; }
+}

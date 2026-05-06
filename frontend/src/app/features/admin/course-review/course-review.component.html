@@ -6,7 +6,7 @@
       <p>Revisá, aprobá o rechazá los cursos enviados por los instructores</p>
     </div>
   </header>
-
+ 
   <!-- Success -->
   <div class="success-banner" *ngIf="successMessage">
     <i class="bi bi-check-circle-fill"></i>
@@ -34,7 +34,12 @@
     Todos
   </button>
 </div>
-
+ <!-- Buscador -->
+  <div class="search-bar">
+  <i class="bi bi-search"></i>
+  <input type="text" placeholder="Buscar cursos..."
+    [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" />
+</div>
   <!-- Loading -->
   <div class="loading-wrap" *ngIf="isLoading">
     <div class="spinner"></div>

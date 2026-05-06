@@ -1,0 +1,76 @@
+<div class="student-layout">
+
+  <nav class="navbar" [class.scrolled]="isScrolled">
+    <div class="navbar-brand" (click)="goToDashboard()" style="cursor:pointer">
+      <i class="bi bi-mortarboard-fill"></i>
+      <span>Academix</span>
+    </div>
+
+    <div class="navbar-center">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Buscar cursos, categorías..."
+          [(ngModel)]="searchQuery"
+          (focus)="onSearchFocus()"
+          (blur)="onSearchBlur()"
+        />
+        <button *ngIf="searchQuery" class="search-clear" (click)="searchQuery = ''">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="navbar-right">
+      <button class="nav-link-btn" routerLink="/student/dashboard" routerLinkActive="active-nav">
+        <i class="bi bi-house-fill"></i>
+        Inicio
+      </button>
+      <button class="nav-link-btn" routerLink="/student/plans" routerLinkActive="active-nav">
+        <i class="bi bi-credit-card"></i>
+        Planes
+      </button>
+      <button class="nav-link-btn" routerLink="/student/explore" routerLinkActive="active-nav">
+        <i class="bi bi-compass"></i>
+        Explorar
+      </button>
+
+      <div class="token-badge">
+  <i class="bi bi-coin"></i>
+  <span>{{ tokens }}</span>
+</div>
+
+      <div class="avatar-menu" (click)="toggleAvatarMenu()" [class.open]="avatarMenuOpen">
+<div class="user-avatar" [style.background]="avatarColor">
+  {{ getInitials() }}
+</div>
+        <div class="avatar-dropdown" *ngIf="avatarMenuOpen">
+          <div class="avatar-dropdown-header">
+  <strong>{{ currentUserName }}</strong>
+  <span>{{ planName }}</span>
+</div>
+          <hr>
+          <a routerLink="/student/profile">
+            <i class="bi bi-person-circle"></i> Mi perfil
+          </a>
+          <a routerLink="/student/certificates">
+  <i class="bi bi-patch-check-fill"></i> Mis certificados
+</a>
+          <a routerLink="/student/settings">
+  <i class="bi bi-gear-fill"></i> Configuración
+</a>
+          <hr>
+          <button class="dropdown-logout" (click)="logout()">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <router-outlet></router-outlet>
+
+  <app-chatbot-widget [context]="'student'"></app-chatbot-widget>
+
+</div>

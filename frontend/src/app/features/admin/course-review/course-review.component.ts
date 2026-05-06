@@ -3,6 +3,7 @@ import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AdminCourseReviewService, ReviewCourse } from '../../../core/services/admin-course-review.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-course-review',
@@ -15,13 +16,13 @@ export class CourseReviewComponent implements OnInit {
   courses:   ReviewCourse[] = [];
   isLoading = true;
   filter    = 'in_review';
+  searchQuery = '';
+  private searchTimeout: any;
 
-  // Panel de aprobación
   approvePanel: ReviewCourse | null = null;
   approveForm!: FormGroup;
   isApproving = false;
 
-  // Panel de rechazo
   rejectPanel: ReviewCourse | null = null;
   rejectReason = '';
   isRejecting  = false;
@@ -58,9 +59,26 @@ export class CourseReviewComponent implements OnInit {
     });
   }
 
+  onSearchChange(): void {
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => this.cdr.detectChanges(), 300);
+  }
+
   get filteredCourses(): ReviewCourse[] {
-    if (this.filter === 'all') return this.courses;
-    return this.courses.filter(c => c.status === this.filter);
+    let courses = this.filter === 'all'
+      ? this.courses
+      : this.courses.filter(c => c.status === this.filter);
+
+    if (this.searchQuery.trim()) {
+      const q = this.searchQuery.toLowerCase();
+      courses = courses.filter(c =>
+        c.title.toLowerCase().includes(q) ||
+        (c as any).instructor?.name?.toLowerCase().includes(q) ||
+        (c as any).category?.name?.toLowerCase().includes(q)
+      );
+    }
+
+    return courses;
   }
 
   setFilter(f: string): void { this.filter = f; }
@@ -103,8 +121,8 @@ export class CourseReviewComponent implements OnInit {
           course.token_price = this.approveForm.value.token_price;
           course.launch_date = this.approveForm.value.launch_date;
         }
-        this.isApproving  = false;
-        this.approvePanel = null;
+        this.isApproving    = false;
+        this.approvePanel   = null;
         this.successMessage = 'Curso aprobado y publicado exitosamente.';
         setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 3000);
         this.cdr.detectChanges();
@@ -140,8 +158,8 @@ export class CourseReviewComponent implements OnInit {
           course.status           = 'rejected';
           course.rejection_reason = this.rejectReason;
         }
-        this.isRejecting  = false;
-        this.rejectPanel  = null;
+        this.isRejecting    = false;
+        this.rejectPanel    = null;
         this.successMessage = 'Curso rechazado. El instructor fue notificado.';
         setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 3000);
         this.cdr.detectChanges();
@@ -155,31 +173,44 @@ export class CourseReviewComponent implements OnInit {
   }
 
   // ===== DESPUBLICAR =====
-  unpublish(course: ReviewCourse): void {
-    if (!confirm(`¿Despublicar "${course.title}"? Los estudiantes inscritos conservarán su acceso.`)) return;
+  async unpublish(course: ReviewCourse): Promise<void> {
+    const result = await Swal.fire({
+      title: '¿Despublicar este curso?',
+      html: `<strong>${course.title}</strong><br><br>
+             Los estudiantes inscritos conservarán su acceso, pero no se podrán hacer nuevas inscripciones.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, despublicar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#64748B',
+    });
+
+    if (!result.isConfirmed) return;
 
     this.reviewService.unpublishCourse(course.id).subscribe({
       next: () => {
-        course.status = 'unpublished';
+        course.status       = 'unpublished';
+        this.successMessage = 'Curso despublicado correctamente.';
+        setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 3000);
         this.cdr.detectChanges();
+      },
+      error: () => {
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo despublicar el curso.',
+          icon: 'error',
+          confirmButtonColor: '#4F46E5',
+        });
       }
     });
   }
 
- previewCourse(id: number): void {
-  this.router.navigate(['/admin/courses', id, 'preview']);
-}
+  previewCourse(id: number): void {
+    this.router.navigate(['/admin/courses', id, 'preview']);
+  }
 
-
-get inReviewCount(): number {
-  return this.courses.filter(c => c.status === 'in_review').length;
-}
-
-get publishedCount(): number {
-  return this.courses.filter(c => c.status === 'published').length;
-}
-
-get rejectedCount(): number {
-  return this.courses.filter(c => c.status === 'rejected').length;
-}
+  get inReviewCount(): number  { return this.courses.filter(c => c.status === 'in_review').length; }
+  get publishedCount(): number { return this.courses.filter(c => c.status === 'published').length; }
+  get rejectedCount(): number  { return this.courses.filter(c => c.status === 'rejected').length; }
 }

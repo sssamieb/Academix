@@ -1,0 +1,98 @@
+<main class="page-wrap">
+
+  <div class="page-header">
+  <div>
+    <h1>Estudiantes</h1>
+    <p>Gestioná los estudiantes de la plataforma</p>
+  </div>
+  <div class="students-summary" *ngIf="!isLoading">
+    <span><strong>{{ students.length }}</strong> estudiantes en total</span>
+    <span><strong>{{ activeCount }}</strong> activos</span>
+  </div>
+</div>
+
+  <!-- Buscador -->
+  <div class="search-bar">
+    <i class="bi bi-search"></i>
+    <input type="text" placeholder="Buscar por nombre o email..."
+      [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" />
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-wrap" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando estudiantes...</p>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!isLoading && students.length === 0">
+    <i class="bi bi-people"></i>
+    <h3>No hay estudiantes</h3>
+    <p>{{ searchQuery ? 'No se encontraron resultados.' : 'Todavía no hay estudiantes registrados.' }}</p>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-card" *ngIf="!isLoading && students.length > 0">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Estudiante</th>
+          <th>Plan</th>
+          <th>Cursos</th>
+          <th>Estado</th>
+          <th>Registro</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let student of students">
+          <td>
+            <div class="table-user">
+              <div class="avatar-wrap" [class.premium]="isPremium(student)">
+                <div class="avatar-inner table-avatar" [style.background]="student.avatar_color ?? '#4F46E5'">
+                  {{ getInitials(student.name) }}
+                </div>
+                <span class="premium-crown" *ngIf="isPremium(student)">👑</span>
+              </div>
+              <div class="user-info">
+                <strong>{{ student.name }}</strong>
+                <span>{{ student.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="plan-badge" [class]="getPlanClass(student)">
+              {{ getPlanName(student) }}
+            </span>
+          </td>
+          <td>
+            <span class="courses-count">
+              <i class="bi bi-collection-play"></i>
+              {{ student.enrollments_count }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge"
+              [class.active]="student.is_active"
+              [class.inactive]="!student.is_active">
+              <span class="status-dot"></span>
+              {{ student.is_active ? 'Activo' : 'Deshabilitado' }}
+            </span>
+          </td>
+          <td class="date-cell">{{ student.created_at | date:'d/MM/yyyy' }}</td>
+          <td>
+            <button class="btn-toggle"
+              [class.btn-disable]="student.is_active"
+              [class.btn-enable]="!student.is_active"
+              (click)="toggleActive(student)">
+              <i class="bi" [class.bi-slash-circle]="student.is_active"
+                [class.bi-check-circle]="!student.is_active"></i>
+              {{ student.is_active ? 'Deshabilitar' : 'Habilitar' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>

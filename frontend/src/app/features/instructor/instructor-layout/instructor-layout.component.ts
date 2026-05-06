@@ -1,7 +1,8 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { InstructorProfileService } from '../../../core/services/instructor-profile.service';
 import { User } from '../../../core/models/user.model';
 import { ChatbotWidgetComponent } from '../../chatbot-widget/chatbot-widget.component';
 
@@ -12,22 +13,32 @@ import { ChatbotWidgetComponent } from '../../chatbot-widget/chatbot-widget.comp
   templateUrl: './instructor-layout.component.html',
   styleUrls: ['./instructor-layout.component.scss'],
 })
-export class InstructorLayoutComponent {
+export class InstructorLayoutComponent implements OnInit {
   user: User | null;
+  avatarColor    = '#4F46E5';
   isScrolled     = false;
   avatarMenuOpen = false;
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private profileService: InstructorProfileService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.user = this.authService.currentUser();
   }
 
+  ngOnInit(): void {
+    this.profileService.getMyProfile().subscribe({
+      next: (res) => {
+        this.avatarColor = res.profile?.avatar_color ?? '#4F46E5';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   get showNewCourseBtn(): boolean {
-    // Ocultar en /instructor/courses y /instructor/courses/create
-    const url = this.router.url;
-    return !url.startsWith('/instructor/courses');
+    return !this.router.url.startsWith('/instructor/courses');
   }
 
   @HostListener('window:scroll')
@@ -46,5 +57,5 @@ export class InstructorLayoutComponent {
   }
 
   goToCreate(): void { this.router.navigate(['/instructor/courses/create']); }
-  logout(): void { this.authService.logout(); }
+  logout(): void     { this.authService.logout(); }
 }

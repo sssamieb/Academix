@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
 import { InstructorLayoutComponent } from './features/instructor/instructor-layout/instructor-layout.component';
 import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
+import { StudentLayoutComponent } from './features/student/student-layout/student-layout.component';
+
 export const routes: Routes = [
   {
     path: '',
@@ -100,18 +102,117 @@ export const routes: Routes = [
 
   // Dashboard estudiante
   {
-    path: 'student',
-    canActivate: [authGuard],
-    children: [
-      {
-        path: 'dashboard',
+  path: 'student',
+  canActivate: [authGuard],
+  component: StudentLayoutComponent,
+  children: [
+    {
+      path: 'dashboard',
+      loadComponent: () =>
+        import('./features/student/dashboard/dashboard.component').then(
+          m => m.StudentDashboardComponent
+        ),
+    },
+    {
+      path: 'explore',
+      loadComponent: () =>
+        import('./features/student/explore/explore.component').then(
+          m => m.ExploreComponent
+        ),
+    },
+    {
+      path: 'plans',
+      loadComponent: () =>
+        import('./features/student/plans/plans.component').then(
+          m => m.PlansComponent
+        ),
+    },
+    {
+      path: 'subscription/success',
+      loadComponent: () =>
+        import('./features/student/subscription-success/subscription-success.component').then(
+          m => m.SubscriptionSuccessComponent
+        ),
+    },
+    {
+      path: 'courses/:id',           // ← detalle público para inscribirse
+      loadComponent: () =>
+        import('./features/student/course-detail/course-detail.component').then(
+          m => m.CourseDetailComponent
+        ),
+    },
+    {
+      path: 'my-courses/:id',        // ← curso para estudiante inscripto
+      loadComponent: () =>
+        import('./features/student/student-course/student-course.component').then(
+          m => m.StudentCourseComponent
+        ),
+    },
+    {
+      path: 'my-courses/:id/lessons/:lessonId',
+      loadComponent: () =>
+        import('./features/student/student-lesson/student-lesson.component').then(
+          m => m.StudentLessonComponent
+        ),
+    },
+    {
+      path: 'my-courses/:id/lessons/:lessonId/quiz',
+      loadComponent: () =>
+        import('./features/student/student-lesson/student-lesson.component').then(
+          m => m.StudentLessonComponent
+        ),
+    },
+    {
+      path: 'profile',
+      loadComponent: () =>
+        import('./features/student/student-profile/student-profile.component').then(
+          m => m.StudentProfileComponent
+        ),
+    },
+    {
+        path: 'my-courses/:id/exam',
         loadComponent: () =>
-          import('./features/student/dashboard/dashboard.component').then(
-            (m) => m.StudentDashboardComponent
+          import('./features/student/student-exam/student-exam.component').then(
+            m => m.StudentExamComponent
           ),
       },
-    ],
-  },
+      {
+  path: 'certificates',
+  loadComponent: () =>
+    import('./features/student/student-certificates/student-certificates.component').then(
+      m => m.StudentCertificatesComponent
+    ),
+},
+{
+  path: 'certificates/:id/view',
+  loadComponent: () =>
+    import('./features/student/certificate-renderer/certificate-renderer.component').then(
+      m => m.CertificateRendererComponent
+    ),
+},
+{
+  path: 'my-courses/:id/forum',
+  loadComponent: () =>
+    import('./features/student/student-forum/student-forum.component').then(
+      m => m.StudentForumComponent
+    ),
+},
+{
+  path: 'my-courses/:id/reviews',
+  loadComponent: () =>
+    import('./features/student/student-reviews/student-reviews.component').then(
+      m => m.StudentReviewsComponent
+    ),
+},
+{
+  path: 'settings',
+  loadComponent: () =>
+    import('./features/student/student-settings/student-settings.component').then(
+      m => m.StudentSettingsComponent
+    ),
+},
+  ],
+},
 
   // Dashboard instructor
   {
@@ -168,6 +269,48 @@ export const routes: Routes = [
           m => m.LessonPreviewComponent
         ),
     },
+    {
+      path: 'profile',
+      loadComponent: () =>
+        import('./features/instructor/instructor-profile/instructor-profile.component').then(
+          m => m.InstructorProfileComponent
+        ),
+    },
+    {
+      path: 'forum',
+      loadComponent: () =>
+        import('./features/instructor/instructor-forum/instructor-forum.component').then(
+          m => m.InstructorForumComponent
+        ),
+    },
+    {
+      path: 'reviews',
+      loadComponent: () =>
+        import('./features/instructor/instructor-reviews/instructor-reviews.component').then(
+          m => m.InstructorReviewsComponent
+        ),
+    },
+    {
+      path: 'settings',
+      loadComponent: () =>
+        import('./features/instructor/instructor-settings/instructor-settings.component').then(
+          m => m.InstructorSettingsComponent
+        ),
+    },
+    {
+      path: 'students',
+      loadComponent: () =>
+        import('./features/instructor/instructor-students/instructor-students.component').then(
+          m => m.InstructorStudentsComponent
+        ),
+    },
+    {
+      path: 'stats',
+      loadComponent: () =>
+        import('./features/instructor/instructor-stats/instructor-stats.component').then(
+          m => m.InstructorStatsComponent
+        ),
+    },
   ],
 },
 
@@ -219,6 +362,56 @@ export const routes: Routes = [
             m => m.AdminLessonPreviewComponent
           ),
       },
+      {
+        path: 'instructors',
+        loadComponent: () =>
+          import('./features/admin/admin-instructors/admin-instructors.component').then(
+            m => m.AdminInstructorsComponent
+          ),
+      },
+      {
+        path: 'students',
+        loadComponent: () =>
+          import('./features/admin/admin-students/admin-students.component').then(
+            m => m.AdminStudentsComponent
+          ),
+      },
+      {
+        path: 'reviews',
+        loadComponent: () =>
+          import('./features/admin/admin-reviews/admin-reviews.component').then(
+            m => m.AdminReviewsComponent
+          ),
+      },
+      {
+        path: 'reports',
+        loadComponent: () =>
+          import('./features/admin/admin-reports/admin-reports.component').then(
+            m => m.AdminReportsComponent
+          ),
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./features/admin/admin-settings/admin-settings.component').then(
+            m => m.AdminSettingsComponent
+          ),
+      },
     ],
   },
+  {
+  path: 'terms',
+  loadComponent: () =>
+    import('./features/terms/terms.component').then(
+      m => m.TermsComponent
+    ),
+},
+{
+  path: 'privacy',
+  loadComponent: () =>
+    import('./features/privacy/privacy.component').then(
+      m => m.PrivacyComponent
+    ),
+},
+
 ];

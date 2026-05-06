@@ -32,6 +32,7 @@ $white:      #FFFFFF;
   .nav-link        { color: rgba(255,255,255,0.85) !important; }
   .nav-brand       { color: $white !important; }
   .btn-nav-login   { color: rgba(255,255,255,0.85) !important; }
+  .hamburger       { color: rgba(255,255,255,0.85); }
 
   &.scrolled {
     background: rgba(255,255,255,0.95);
@@ -43,6 +44,7 @@ $white:      #FFFFFF;
     .nav-link      { color: $dark !important; }
     .nav-brand     { color: $primary !important; }
     .btn-nav-login { color: $primary !important; }
+    .hamburger     { color: $dark; }
   }
 }
 
@@ -1492,6 +1494,21 @@ $white:      #FFFFFF;
     z-index: 1000;
   }
 
+  // Cuando el menú está abierto (overlay blanco), los links deben ser oscuros
+  .nav-links.open .nav-link      { color: $dark !important; }
+  .nav-links.open .btn-nav-login { color: $primary !important; }
+
+  // Cuando el menú está abierto: forzar navbar a estado neutro (opaco, sin sombra ni blur)
+  // sin importar si está scrolleado o no
+  .navbar:has(.nav-links.open) {
+    background: $white;
+    backdrop-filter: none;
+    box-shadow: none;
+
+    .nav-brand { color: $primary !important; }
+    .hamburger { color: $dark !important; }
+  }
+
   // Hero
   .hero-container {
     grid-template-columns: 1fr;
@@ -1576,6 +1593,7 @@ $white:      #FFFFFF;
 }
 
 @media (max-width: 480px) {
+  .nav-container    { padding: 0 1.25rem; }
   .hero-title       { font-size: 1.7rem; }
   .stats-container  { grid-template-columns: repeat(2, 1fr); }
   .footer-links     { grid-template-columns: 1fr; }

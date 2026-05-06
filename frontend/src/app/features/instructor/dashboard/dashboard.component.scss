@@ -556,7 +556,7 @@ $success:   #10B981;
 }
 
 // ===== REVIEWS =====
-.reviews-card { }
+.reviews-card {}
 
 .reviews-grid {
   display: grid;
@@ -631,4 +631,20 @@ $success:   #10B981;
   .reviews-grid  { grid-template-columns: 1fr; }
   .main-content  { padding: 1rem; }
   .topbar-date   { display: none; }
+}
+
+.stat-icon {
+  &.published { background: rgba(16,185,129,0.1); i { color: #10B981; } }
+}
+
+.review-text.no-comment {
+  color: #94A3B8;
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .stats-grid    { grid-template-columns: 1fr; }
+  .main-content  { padding: 0.75rem; }
+  .reviews-grid  { grid-template-columns: 1fr; }
+  .btn-new-course span { display: none; }
 }

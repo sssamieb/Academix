@@ -294,6 +294,26 @@ $border:    #E2E8F0;
 
   i { font-size: 0.8rem; }
 }
+.course-thumb {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  border-radius: 10px 10px 0 0;
+  position: relative;
+
+  .course-pattern {
+    width: 100%;
+    height: 100%;
+    display: block;
+
+    ::ng-deep svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      preserveAspectRatio: none;
+    }
+  }
+}
 
 @media (max-width: 1024px) { .courses-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px)  { .courses-grid { grid-template-columns: 1fr; } .page-wrap { padding: 1rem; } }

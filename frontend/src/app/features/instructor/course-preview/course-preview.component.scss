@@ -388,3 +388,7 @@ $success:   #10B981;
   .course-hero-badge { display: none; }
   .course-content    { padding: 0 1rem; margin: 1rem auto; }
 }
+
+@media (max-width: 480px) {
+  .course-hero { padding: 1.5rem 0.75rem; }
+}

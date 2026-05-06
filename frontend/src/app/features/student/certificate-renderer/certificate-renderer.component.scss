@@ -1,0 +1,626 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:wght@700&family=Montserrat:wght@400;600;700;800&display=swap');
+
+$primary:   #2D2D7B;
+$secondary: #4F46E5;
+$accent:    #06B6D4;
+$gold:      #C9A84C;
+$dark:      #1E293B;
+$gray:      #64748B;
+$light:     #F8FAFC;
+$white:     #FFFFFF;
+$border:    #E2E8F0;
+
+.renderer-wrap {
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+}
+
+.loading-full {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 6rem;
+  color: $gray;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid $border;
+  border-top-color: $secondary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.renderer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: $white;
+  border-bottom: 1px solid $border;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: 1.5px solid $border;
+  color: $gray;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover { border-color: $secondary; color: $secondary; }
+}
+
+.btn-download {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: $secondary;
+  border: none;
+  color: $white;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover:not(:disabled) { background: $primary; }
+  &:disabled { opacity: 0.7; cursor: not-allowed; }
+}
+
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: $white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.cert-preview-wrap {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;  // ← cambiar center por flex-start
+  justify-content: center;
+  padding: 2rem;
+  overflow-y: auto;         // ← agregar
+}
+
+// ===== CERTIFICADO BASE =====
+.cert {
+  width: 1122px;
+  height: 794px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  transform-origin: top center;
+  transform: scale(0.75);
+  margin: -100px auto;
+}
+
+// ===== BÁSICO =====
+.cert-basic {
+  background: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 80px;
+}
+
+.basic-deco-tl {
+  position: absolute;
+  top: 0; left: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 160px 160px 0 0;
+  border-color: #1565C0 transparent transparent transparent;
+}
+
+.basic-deco-tr {
+  position: absolute;
+  top: 0; right: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 120px 120px 0;
+  border-color: transparent #42A5F5 transparent transparent;
+}
+
+.basic-deco-bl {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 140px 0 0 140px;
+  border-color: transparent transparent transparent #1976D2;
+}
+
+.basic-deco-br {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 0 140px 140px;
+  border-color: transparent transparent #29B6F6 transparent;
+}
+
+.basic-header {
+  margin-bottom: 20px;
+}
+
+.basic-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1E293B;
+
+  i { color: #1565C0; font-size: 24px; }
+}
+
+.basic-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.basic-title-top {
+  font-family: 'Dancing Script', cursive;
+  font-size: 52px;
+  color: #29B6F6;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.basic-title-bottom {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1565C0;
+  letter-spacing: 2px;
+}
+
+.basic-otorgado {
+  font-size: 14px;
+  color: $gray;
+  margin-bottom: 8px;
+}
+
+.basic-student {
+  font-family: 'Dancing Script', cursive;
+  font-size: 52px;
+  color: #1E293B;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.basic-divider {
+  width: 400px;
+  height: 2px;
+  background: #29B6F6;
+  margin-bottom: 20px;
+  position: relative;
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #29B6F6;
+    border-radius: 50%;
+    top: -3px;
+  }
+  &::before { left: 0; }
+  &::after  { right: 0; }
+}
+
+.basic-desc {
+  font-size: 14px;
+  color: $gray;
+  text-align: center;
+  line-height: 1.8;
+  margin-bottom: 40px;
+
+  strong { color: $dark; }
+}
+
+.basic-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 40px;
+}
+
+.basic-date-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 160px;
+  flex-shrink: 0;
+  small { font-size: 10px; color: #CBD5E1; }
+}
+
+.basic-spacer {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.basic-signature { text-align: center; }
+
+.basic-sig-name-script {
+  font-family: 'Dancing Script', cursive;
+  font-size: 28px;
+  color: $dark;
+  margin-bottom: 4px;
+}
+
+.basic-sig-line {
+  width: 200px;
+  height: 2px;
+  background: #29B6F6;
+  margin: 4px auto;
+}
+
+.basic-sig-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: $dark;
+  letter-spacing: 1px;
+}
+
+.basic-sig-role {
+  font-size: 10px;
+  color: $gray;
+}
+
+.basic-date {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+
+  small { font-size: 10px; color: #CBD5E1; }
+}
+
+// ===== PRO =====
+.cert-pro {
+  background: #FAF6E9;
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 80px;
+}
+
+.pro-border {
+  position: absolute;
+  inset: 12px;
+  border: 2px solid $gold;
+  pointer-events: none;
+}
+
+.pro-corner {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-color: $gold;
+  border-style: solid;
+
+  &.pro-corner-tl { top: 20px; left: 20px; border-width: 3px 0 0 3px; }
+  &.pro-corner-tr { top: 20px; right: 20px; border-width: 3px 3px 0 0; }
+  &.pro-corner-bl { bottom: 20px; left: 20px; border-width: 0 0 3px 3px; }
+  &.pro-corner-br { bottom: 20px; right: 20px; border-width: 0 3px 3px 0; }
+}
+
+.pro-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 80px;
+  font-weight: 700;
+  color: #3D2B00;
+  letter-spacing: 12px;
+  line-height: 1;
+  text-align: center;
+}
+
+.pro-title-wrap {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.pro-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 72px;
+  font-weight: 700;
+  color: #3D2B00;
+  letter-spacing: 8px;
+  line-height: 1;
+}
+
+.pro-subtitle {
+  font-size: 14px;
+  letter-spacing: 6px;
+  color: $gold;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.pro-ornament {
+  font-size: 16px;
+  color: $gold;
+  margin-top: 8px;
+}
+
+.pro-intro {
+  font-size: 13px;
+  color: #64748B;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.pro-student {
+  font-family: 'Dancing Script', cursive;
+  font-size: 56px;
+  color: #2C1A00;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 4px; // ← reducido para que la línea quede más pegada
+}
+
+.pro-student-line {
+  width: 350px;
+  height: 1px;
+  background: $gold;
+  margin: 0 auto 20px; // ← margin-top: 0 para pegarlo al nombre
+}
+
+.pro-desc {
+  font-size: 13px;
+  color: #475569;
+  text-align: center;
+  margin-bottom: 30px;
+
+  strong { color: #2C1A00; }
+}
+
+.pro-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 40px;
+}
+
+.pro-signature { text-align: center; }
+
+.pro-sig-name-script {
+  font-family: 'Dancing Script', cursive;
+  font-size: 26px;
+  color: #2C1A00;
+}
+
+.pro-sig-line {
+  width: 180px;
+  height: 1px;
+  background: $gold;
+  margin: 4px auto;
+}
+
+.pro-sig-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: #2C1A00;
+  letter-spacing: 1px;
+}
+
+.pro-sig-role { font-size: 9px; color: $gray; }
+
+.pro-seal { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+.pro-seal-img {
+  width: 250px;
+  height: 320px;
+  object-fit: contain;
+}
+
+.pro-logo-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.pro-logo-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  i    { font-size: 22px; color: #2C1A00; }
+  span { font-size: 18px; font-weight: 800; color: #2C1A00; letter-spacing: 1px; }
+}
+
+.pro-logo-line {
+  width: 130px;
+  height: 1px;
+  background: $gold;
+  margin: 2px 0;
+}
+
+.pro-logo-block small {
+  font-size: 11px;
+  color: $gray;
+}
+
+
+// ===== PREMIUM =====
+
+.cert-premium {
+  background: #06823b;  // ← fondo verde
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  position: relative;
+}
+
+.prem-flag-img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 680px;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+  pointer-events: 0; 
+}
+
+.prem-content {
+  margin-left: 50px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 40px 30px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.prem-border {
+  width: 100%;
+  height: 100%;
+  border: 3px solid #d52b1e;  // ← borde rojo
+  padding: 30px 35px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+}
+
+.prem-title {
+  font-size: 72px;
+  font-weight: 900;
+  color: #1E293B;
+  letter-spacing: 6px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.prem-intro {
+  font-size: 12px;
+  color: $gray;
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.prem-student {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1E293B;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.prem-line {
+  width: 300px;
+  height: 2px;
+  background: #1E293B;
+  margin-bottom: 12px;
+}
+
+.prem-desc {
+  font-size: 12px;
+  color: $gray;
+  text-align: center;
+  margin-bottom: 24px;
+  strong { color: $dark; }
+}
+
+.prem-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.prem-signature { text-align: center; }
+
+.prem-sig-name-script {
+  font-family: 'Dancing Script', cursive;
+  font-size: 24px;
+  color: $dark;
+}
+
+.prem-sig-line {
+  width: 160px;
+  height: 1px;
+  background: $dark;
+  margin: 4px auto;
+}
+
+.prem-sig-name { font-size: 10px; font-weight: 700; color: $dark; }
+.prem-sig-role { font-size: 9px; color: $gray; }
+
+.prem-seal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prem-seal-img {
+  width: 170px;
+  height: 220px;
+  object-fit: contain;
+}
+
+.prem-logo-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.prem-logo-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  i    { font-size: 20px; color: $dark; }
+  span { font-size: 16px; font-weight: 800; color: $dark; letter-spacing: 1px; }
+}
+
+.prem-logo-line {
+  width: 130px;
+  height: 1px;
+  background: $dark;
+  margin: 3px 0;
+}
+
+.prem-logo-name {
+  font-family: 'Dancing Script', cursive;
+  font-size: 18px;
+  color: $dark;
+}
+
+.prem-logo-block small {
+  font-size: 9px;
+  color: $gray;
+}

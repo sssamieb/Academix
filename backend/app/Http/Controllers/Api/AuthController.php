@@ -74,17 +74,18 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message'             => 'Inicio de sesión exitoso.',
-            'must_change_password' => $user->must_change_password,
-            'user'                => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'email' => $user->email,
-                'role'  => $user->role,
-            ],
-            'token'      => $token,
-            'token_type' => 'Bearer',
-        ]);
+    'message'              => 'Inicio de sesión exitoso.',
+    'must_change_password' => $user->must_change_password,
+    'user'                 => [
+        'id'           => $user->id,
+        'name'         => $user->name,
+        'email'        => $user->email,
+        'role'         => $user->role,
+        'avatar_color' => $user->avatar_color, // ← agregar
+    ],
+    'token'      => $token,
+    'token_type' => 'Bearer',
+]);
     }
 
     // Logout
@@ -100,8 +101,11 @@ class AuthController extends Controller
     // Usuario autenticado
     public function me(Request $request): JsonResponse
     {
+        $user = $request->user()->load('plan');
         return response()->json([
-            'user' => $request->user()->load('plan'),
+            'user' => array_merge($user->toArray(), [
+                'is_google_user' => !is_null($user->google_id),
+            ]),
         ]);
     }
 
@@ -220,41 +224,82 @@ class AuthController extends Controller
     // Cambiar contraseña temporal (instructores)
     public function changePassword(Request $request): JsonResponse
 {
-    $request->validate([
-        'current_password' => 'required',
-        'password'         => [
-            'required',
-            'confirmed',
-            Password::min(8)
-                ->mixedCase()
-                ->numbers()
-                ->symbols()
-        ],
-    ], [
-        'password.min'     => 'La contraseña debe tener al menos 8 caracteres.',
-        'password.mixed'   => 'La contraseña debe tener mayúsculas y minúsculas.',
-        'password.numbers' => 'La contraseña debe incluir al menos un número.',
-        'password.symbols' => 'La contraseña debe incluir al menos un carácter especial.',
-    ]);
+    $user         = $request->user();
+    $isGoogleUser = !is_null($user->google_id);
 
-    $user = $request->user();
+    if ($isGoogleUser) {
+        // Usuario de Google — no tiene contraseña actual
+        $request->validate([
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(8)->mixedCase()->numbers()->symbols()
+            ],
+        ], [
+            'password.min'     => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.mixed'   => 'La contraseña debe tener mayúsculas y minúsculas.',
+            'password.numbers' => 'La contraseña debe incluir al menos un número.',
+            'password.symbols' => 'La contraseña debe incluir al menos un carácter especial.',
+        ]);
+    } else {
+        // Usuario normal o instructor con contraseña temporal
+        $request->validate([
+            'current_password' => 'required',
+            'password'         => [
+                'required',
+                'confirmed',
+                Password::min(8)->mixedCase()->numbers()->symbols()
+            ],
+        ], [
+            'password.min'     => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.mixed'   => 'La contraseña debe tener mayúsculas y minúsculas.',
+            'password.numbers' => 'La contraseña debe incluir al menos un número.',
+            'password.symbols' => 'La contraseña debe incluir al menos un carácter especial.',
+        ]);
 
-    if (!Hash::check($request->current_password, $user->password)) {
-        return response()->json([
-            'message' => 'La contraseña actual es incorrecta.',
-        ], 400);
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'message' => 'La contraseña actual es incorrecta.',
+            ], 400);
+        }
     }
 
     $user->forceFill([
         'password'             => Hash::make($request->password),
         'must_change_password' => false,
+        'google_id'            => $isGoogleUser ? null : $user->google_id,
     ])->save();
 
     return response()->json([
         'message' => 'Contraseña actualizada exitosamente.',
     ]);
-
-    
 }
+public function updateProfile(Request $request): JsonResponse
+{
+    $request->validate([
+        'avatar_color' => 'required|string|max:7',
+    ]);
 
+    $user = $request->user();
+    $user->update(['avatar_color' => $request->avatar_color]);
+
+    return response()->json([
+        'message' => 'Perfil actualizado.',
+        'user'    => $user->fresh()->load('plan'), // ← fresh() para recargar
+    ]);
+}
+public function updateName(Request $request): JsonResponse
+{
+    $request->validate([
+        'name' => 'required|string|min:3|max:100',
+    ]);
+
+    $user = $request->user();
+    $user->update(['name' => $request->name]);
+
+    return response()->json([
+        'message' => 'Nombre actualizado.',
+        'user'    => $user->fresh()->load('plan'),
+    ]);
+}
 }

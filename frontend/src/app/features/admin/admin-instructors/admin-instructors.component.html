@@ -1,0 +1,150 @@
+<main class="page-wrap">
+
+  <div class="page-header">
+    <div>
+      <h1>Instructores</h1>
+      <p>Gestioná los instructores de la plataforma</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-promote" (click)="openPromoteModal()">
+        <i class="bi bi-arrow-up-circle-fill"></i>
+        Promover estudiante
+      </button>
+      <button class="btn-add" (click)="router.navigate(['/admin/register-instructor'])">
+        <i class="bi bi-person-plus-fill"></i>
+        Agregar instructor
+      </button>
+    </div>
+  </div>
+
+  <!-- Buscador -->
+  <div class="search-bar">
+    <i class="bi bi-search"></i>
+    <input type="text" placeholder="Buscar por nombre o email..."
+      [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" />
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-wrap" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando instructores...</p>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!isLoading && instructors.length === 0">
+    <i class="bi bi-person-badge"></i>
+    <h3>No hay instructores</h3>
+    <p>{{ searchQuery ? 'No se encontraron resultados para "' + searchQuery + '"' : 'Todavía no hay instructores registrados.' }}</p>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-card" *ngIf="!isLoading && instructors.length > 0">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Instructor</th>
+          <th>Cursos</th>
+          <th>Estado</th>
+          <th>Registro</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let instructor of instructors">
+          <td>
+            <div class="table-user">
+              <div class="table-avatar" [style.background]="instructor.avatar_color ?? '#4F46E5'">
+                {{ getInitials(instructor.name) }}
+              </div>
+              <div class="user-info">
+                <strong>{{ instructor.name }}</strong>
+                <span>{{ instructor.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="courses-count">
+              <i class="bi bi-play-btn"></i>
+              {{ instructor.courses_count }} cursos
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [class.active]="instructor.is_active" [class.inactive]="!instructor.is_active">
+              <span class="status-dot"></span>
+              {{ instructor.is_active ? 'Activo' : 'Deshabilitado' }}
+            </span>
+          </td>
+          <td class="date-cell">{{ instructor.created_at | date:'d/MM/yyyy' }}</td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-toggle"
+                [class.btn-disable]="instructor.is_active"
+                [class.btn-enable]="!instructor.is_active"
+                (click)="toggleActive(instructor)">
+                <i class="bi" [class.bi-slash-circle]="instructor.is_active"
+                  [class.bi-check-circle]="!instructor.is_active"></i>
+                {{ instructor.is_active ? 'Deshabilitar' : 'Habilitar' }}
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal promover -->
+  <div class="modal-overlay" *ngIf="showPromoteModal" (click)="closePromoteModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="bi bi-arrow-up-circle-fill"></i> Promover a instructor</h3>
+        <button class="modal-close" (click)="closePromoteModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-desc">Ingresá el email del estudiante que querés promover a instructor.</p>
+
+        <div class="search-user-row">
+          <input type="email" [(ngModel)]="promoteEmail"
+            placeholder="email@ejemplo.com"
+            class="modal-input"
+            (keydown.enter)="searchUser()" />
+          <button class="btn-search-user" (click)="searchUser()" [disabled]="isSearching">
+            <span class="btn-spinner" *ngIf="isSearching"></span>
+            <i class="bi bi-search" *ngIf="!isSearching"></i>
+            Buscar
+          </button>
+        </div>
+
+        <div class="promote-error" *ngIf="promoteError">
+          <i class="bi bi-exclamation-circle-fill"></i>
+          {{ promoteError }}
+        </div>
+
+        <div class="found-user" *ngIf="foundUser">
+          <div class="found-user-avatar" [style.background]="foundUser.avatar_color ?? '#4F46E5'">
+            {{ getInitials(foundUser.name) }}
+          </div>
+          <div class="found-user-info">
+            <strong>{{ foundUser.name }}</strong>
+            <span>{{ foundUser.email }}</span>
+            <span class="found-user-role">Estudiante</span>
+          </div>
+          <i class="bi bi-check-circle-fill found-check"></i>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" (click)="closePromoteModal()">Cancelar</button>
+        <button class="btn-modal-confirm" [disabled]="!foundUser || isPromoting"
+          (click)="promoteUser()">
+          <span class="btn-spinner" *ngIf="isPromoting"></span>
+          <i class="bi bi-arrow-up-circle-fill" *ngIf="!isPromoting"></i>
+          {{ isPromoting ? 'Promoviendo...' : 'Promover a instructor' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>

@@ -1,0 +1,156 @@
+<main class="profile-wrap">
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando perfil...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && user">
+
+    <!-- Card de perfil -->
+    <div class="profile-card" [class.premium]="isPremium">
+
+      <div class="premium-glow" *ngIf="isPremium"></div>
+
+      <div class="profile-card-top">
+        <div class="avatar-section">
+          <div class="avatar-ring" [class.premium-ring]="isPremium">
+            <div class="avatar-circle" [style.background]="selectedColor">
+              <span>{{ initials }}</span>
+            </div>
+          </div>
+
+          <div class="premium-badge" *ngIf="isPremium">
+            <i class="bi bi-gem"></i>
+            Premium
+          </div>
+        </div>
+
+        <div class="profile-info">
+          <h1>{{ user.name }}</h1>
+          <p class="profile-email">{{ user.email }}</p>
+          <p class="member-since" *ngIf="memberSince">
+            <i class="bi bi-calendar3"></i>
+            Miembro desde {{ memberSince }}
+          </p>
+          <div class="plan-badge" *ngIf="user.plan">
+            <i class="bi bi-rocket-takeoff-fill"></i>
+            {{ user.plan.name }}
+            <span class="token-count">
+              <i class="bi bi-coin"></i>
+              {{ user.tokens }} tokens
+            </span>
+          </div>
+          <div class="no-plan-badge" *ngIf="!user.plan">
+            <i class="bi bi-person-circle"></i>
+            Sin plan activo
+            <button class="btn-get-plan" (click)="router.navigate(['/student/plans'])">
+              Ver planes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selector de color -->
+<div class="color-section">
+  <h3>Color de tu avatar</h3>
+  <div class="color-picker-wrap">
+    <div class="color-preview" [style.background]="selectedColor">
+      <span>{{ initials }}</span>
+    </div>
+    <div class="color-picker-controls">
+      <label class="color-picker-label">
+        <input
+          type="color"
+          [value]="selectedColor"
+          (input)="onColorChange($event)"
+          class="color-input"
+        />
+        <span>Elegir color</span>
+        <i class="bi bi-palette-fill"></i>
+      </label>
+      <span class="color-hex">{{ selectedColor }}</span>
+    </div>
+  </div>
+  <button class="btn-save-color"
+    (click)="saveColor()"
+    [disabled]="savingColor || selectedColor === user?.avatar_color">
+    <span class="btn-spinner" *ngIf="savingColor"></span>
+    <i class="bi bi-check-lg" *ngIf="!savingColor"></i>
+    {{ savingColor ? 'Guardando...' : 'Guardar color' }}
+  </button>
+</div>
+
+    </div>
+
+    <!-- Cursos completados -->
+    <div class="section-block" *ngIf="completedCourses.length > 0">
+      <div class="section-header">
+        <h2><i class="bi bi-patch-check-fill"></i> Cursos completados</h2>
+        <span class="section-count">{{ completedCourses.length }}</span>
+      </div>
+      <div class="courses-grid">
+        <div class="mini-course-card"
+          *ngFor="let enrollment of completedCourses"
+          (click)="goToCourse(enrollment.course.id)">
+          <div class="mini-thumb"
+            [style.background]="getCategoryColor(enrollment.course.category?.name)">
+            <i class="bi bi-mortarboard-fill"></i>
+          </div>
+          <div class="mini-info">
+            <span class="mini-category">{{ enrollment.course.category?.name }}</span>
+            <h4>{{ enrollment.course.title }}</h4>
+            <span class="mini-instructor">
+              <i class="bi bi-person-fill"></i>
+              {{ enrollment.course.instructor?.name }}
+            </span>
+          </div>
+          <div class="mini-completed-badge">
+            <i class="bi bi-patch-check-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- En progreso -->
+    <div class="section-block" *ngIf="inProgressCourses.length > 0">
+      <div class="section-header">
+        <h2><i class="bi bi-hourglass-split"></i> En progreso</h2>
+        <span class="section-count">{{ inProgressCourses.length }}</span>
+      </div>
+      <div class="courses-grid">
+        <div class="mini-course-card"
+          *ngFor="let enrollment of inProgressCourses"
+          (click)="goToCourse(enrollment.course.id)">
+          <div class="mini-thumb"
+            [style.background]="getCategoryColor(enrollment.course.category?.name)">
+            <i class="bi bi-mortarboard-fill"></i>
+          </div>
+          <div class="mini-info">
+            <span class="mini-category">{{ enrollment.course.category?.name }}</span>
+            <h4>{{ enrollment.course.title }}</h4>
+            <div class="mini-progress">
+              <div class="mini-progress-bar">
+                <div class="mini-progress-fill"
+                  [style.width]="enrollment.progress_percent + '%'">
+                </div>
+              </div>
+              <span>{{ enrollment.progress_percent }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-courses" *ngIf="completedCourses.length === 0 && inProgressCourses.length === 0">
+      <i class="bi bi-collection-play"></i>
+      <p>Todavía no te inscribiste en ningún curso.</p>
+      <button class="btn-explore" (click)="router.navigate(['/student/explore'])">
+        <i class="bi bi-compass"></i>
+        Explorar cursos
+      </button>
+    </div>
+
+  </ng-container>
+</main>

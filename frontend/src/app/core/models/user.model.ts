@@ -5,7 +5,11 @@ export interface User {
   role:                 'admin' | 'instructor' | 'student';
   is_active:            boolean;
   must_change_password: boolean;
+   avatar_color?: string;
+   created_at?:   string;
   plan_id:              number | null;
+  tokens:               number;
+  subscription_status:  string | null;
   plan?: {
     id:                 number;
     name:               string;

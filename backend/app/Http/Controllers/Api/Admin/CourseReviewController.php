@@ -95,40 +95,65 @@ class CourseReviewController extends Controller
         return response()->json(['message' => 'Curso despublicado.']);
     }
 
-    private function generateFinalExam(Course $course, int $questionCount = 10): void
-    {
-        $exam = $course->finalExam;
-        if (!$exam) return;
+private function generateFinalExam(Course $course, int $questionCount = 10): void
+{
+    // Obtener la sección del examen final
+    $examSection = $course->sections()->where('is_final_exam', true)->first();
+    if (!$examSection) return;
 
-        // Borrar preguntas anteriores si las hay
-        $exam->questions()->delete();
+    // Obtener o crear la lección del examen final
+    $examLesson = $examSection->lessons()->first();
+    if (!$examLesson) {
+        $examLesson = $examSection->lessons()->create([
+            'title'    => 'Examen final',
+            'type'     => 'video',
+            'order'    => 0,
+            'is_preview' => false,
+        ]);
+    }
 
-        // Obtener todas las preguntas de los quizzes de práctica activos
-        $allQuestions = QuizQuestion::whereHas('quiz', function ($q) use ($course) {
-            $q->where('course_id', $course->id)
-              ->where('type', 'practice')
-              ->where('is_active', true);
-        })->with('options')->get();
+    // Obtener o crear el quiz del examen
+    $examQuiz = $examLesson->quiz;
+    if (!$examQuiz) {
+        $examQuiz = $examLesson->quiz()->create([
+            'course_id'          => $course->id,
+            'passing_score'      => 70,
+            'time_limit_minutes' => 60,
+            'is_active'          => true,
+            'type'               => 'exam',
+        ]);
+    }
 
-        if ($allQuestions->isEmpty()) return;
+    // Borrar preguntas anteriores
+    $examQuiz->questions()->each(fn($q) => $q->options()->delete());
+    $examQuiz->questions()->delete();
 
-        // Seleccionar aleatoriamente
-        $selected = $allQuestions->shuffle()->take($questionCount);
+    // Obtener todas las preguntas de los quizzes de práctica activos
+    $allQuestions = QuizQuestion::whereHas('quiz', function ($q) use ($course) {
+        $q->where('course_id', $course->id)
+          ->where('is_active', true)
+          ->where('type', '!=', 'exam');
+    })->with('options')->get();
 
-        foreach ($selected as $order => $original) {
-            $newQuestion = $exam->questions()->create([
-                'question' => $original->question,
-                'order'    => $order,
+    if ($allQuestions->isEmpty()) return;
+
+    // Seleccionar aleatoriamente
+    $selected = $allQuestions->shuffle()->take($questionCount);
+
+    foreach ($selected as $order => $original) {
+        $newQuestion = $examQuiz->questions()->create([
+            'question' => $original->question,
+            'order'    => $order,
+        ]);
+
+        foreach ($original->options as $option) {
+            $newQuestion->options()->create([
+                'option_text' => $option->option_text,
+                'is_correct'  => $option->is_correct,
             ]);
-
-            foreach ($original->options as $option) {
-                $newQuestion->options()->create([
-                    'option_text' => $option->option_text,
-                    'is_correct'  => $option->is_correct,
-                ]);
-            }
         }
     }
+}
 
     public function preview(Course $course): JsonResponse
     {

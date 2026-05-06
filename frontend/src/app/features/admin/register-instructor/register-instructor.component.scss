@@ -565,3 +565,8 @@ $error:     #EF4444;
   .form-actions { flex-direction: column; }
   .btn-cancel, .btn-submit { width: 100%; justify-content: center; }
 }
+
+@media (max-width: 480px) {
+  .topbar { padding: 1rem; }
+  .topbar-left h1 { font-size: 1.2rem; }
+}

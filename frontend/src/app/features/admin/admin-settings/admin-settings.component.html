@@ -1,0 +1,215 @@
+<main class="settings-wrap">
+
+  <div class="page-header">
+    <h1><i class="bi bi-gear-fill"></i> Configuración</h1>
+    <p>Gestioná las categorías y planes de la plataforma</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="settings-tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'categories'"
+      (click)="activeTab = 'categories'">
+      <i class="bi bi-tags-fill"></i>
+      <span>Categorías</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'plans'"
+      (click)="activeTab = 'plans'">
+      <i class="bi bi-gem"></i>
+      <span>Planes</span>
+    </button>
+  </div>
+
+  <!-- ===== CATEGORÍAS ===== -->
+  <div *ngIf="activeTab === 'categories'">
+
+    <div class="section-header">
+      <div>
+        <h2>Categorías de cursos</h2>
+        <p>{{ categories.length }} categorías en total</p>
+      </div>
+      <button class="btn-add" (click)="openCategoryForm()">
+        <i class="bi bi-plus-lg"></i>
+        Nueva categoría
+      </button>
+    </div>
+
+    <!-- Formulario -->
+    <div class="form-card" *ngIf="showCategoryForm">
+      <div class="form-card-header">
+        <h3>{{ editingCategory ? 'Editar categoría' : 'Nueva categoría' }}</h3>
+        <button class="btn-close-form" (click)="closeCategoryForm()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" formControlName="name"
+              placeholder="Ej: Inteligencia Artificial"
+              class="form-input" />
+            <span class="field-error"
+              *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched">
+              Requerido, mínimo 2 caracteres.
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Icono <small>(Bootstrap Icons)</small></label>
+          <div class="icon-picker">
+            <div class="icon-option"
+              *ngFor="let icon of availableIcons"
+              [class.selected]="categoryForm.get('icon')?.value === icon"
+              (click)="categoryForm.get('icon')?.setValue(icon)">
+              <i class="bi" [class]="icon"></i>
+            </div>
+          </div>
+          <div class="selected-icon-preview" *ngIf="categoryForm.get('icon')?.value">
+            <i class="bi" [class]="categoryForm.get('icon')?.value"></i>
+            <span>{{ categoryForm.get('icon')?.value }}</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="closeCategoryForm()">Cancelar</button>
+          <button type="submit" class="btn-save" [disabled]="categoryForm.invalid || isSavingCat">
+            <span *ngIf="isSavingCat" class="mini-spinner white"></span>
+            <i class="bi bi-check-lg" *ngIf="!isSavingCat"></i>
+            {{ isSavingCat ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-row" *ngIf="isLoadingCats">
+      <div class="mini-spinner"></div>
+      <span>Cargando categorías...</span>
+    </div>
+
+    <!-- Grid de categorías -->
+    <div class="categories-grid" *ngIf="!isLoadingCats">
+      <div class="category-card" *ngFor="let cat of categories">
+        <div class="cat-icon">
+          <i class="bi" [class]="cat.icon"></i>
+        </div>
+        <div class="cat-info">
+          <span class="cat-name">{{ cat.name }}</span>
+          <span class="cat-slug">{{ cat.slug }}</span>
+        </div>
+        <div class="cat-actions">
+          <button class="btn-icon-edit" (click)="openCategoryForm(cat)">
+            <i class="bi bi-pencil-fill"></i>
+          </button>
+          <button class="btn-icon-delete" (click)="deleteCategory(cat)">
+            <i class="bi bi-trash-fill"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PLANES ===== -->
+  <div *ngIf="activeTab === 'plans'">
+
+    <div class="section-header">
+      <div>
+        <h2>Planes de suscripción</h2>
+        <p>Editá los precios y beneficios de cada plan</p>
+      </div>
+    </div>
+
+    <div class="loading-row" *ngIf="isLoadingPlans">
+      <div class="mini-spinner"></div>
+      <span>Cargando planes...</span>
+    </div>
+
+    <div class="plans-grid" *ngIf="!isLoadingPlans">
+      <div class="plan-card" *ngFor="let plan of plans">
+        <div class="plan-card-header" [style.background]="getPlanColor(plan.type)">
+          <i class="bi" [class]="getPlanIcon(plan.type)"></i>
+          <div>
+            <span class="plan-name">{{ plan.name }}</span>
+            <span class="plan-type">{{ plan.type | titlecase }}</span>
+          </div>
+          <button class="btn-edit-plan" (click)="openPlanForm(plan)">
+            <i class="bi bi-pencil-fill"></i>
+            Editar
+          </button>
+        </div>
+
+        <div class="plan-details">
+          <div class="plan-detail-row">
+            <span>Precio</span>
+            <strong>${{ plan.price }}/mes</strong>
+          </div>
+          <div class="plan-detail-row">
+            <span>Tokens mensuales</span>
+            <strong>{{ plan.unlimited_tokens ? 'Ilimitados' : plan.monthly_tokens }}</strong>
+          </div>
+          <div class="plan-detail-row">
+            <span>Intentos quiz</span>
+            <strong>{{ plan.unlimited_attempts ? 'Ilimitados' : plan.quiz_attempts }}</strong>
+          </div>
+          <div class="plan-detail-row">
+            <span>Intentos examen</span>
+            <strong>{{ plan.unlimited_attempts ? 'Ilimitados' : plan.exam_attempts }}</strong>
+          </div>
+        </div>
+
+        <!-- Form edición inline -->
+        <div class="plan-edit-form" *ngIf="editingPlan?.id === plan.id" [formGroup]="planForm">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Precio (USD)</label>
+              <input type="number" formControlName="price" class="form-input" min="0" step="0.01" />
+            </div>
+            <div class="form-group">
+              <label>Tokens mensuales</label>
+              <input type="number" formControlName="monthly_tokens" class="form-input" min="0" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Intentos quiz</label>
+              <input type="number" formControlName="quiz_attempts" class="form-input" min="1" />
+            </div>
+            <div class="form-group">
+              <label>Intentos examen</label>
+              <input type="number" formControlName="exam_attempts" class="form-input" min="1" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group toggle-group">
+              <label>Intentos ilimitados</label>
+              <label class="toggle">
+                <input type="checkbox" formControlName="unlimited_attempts" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="form-group toggle-group">
+              <label>Tokens ilimitados</label>
+              <label class="toggle">
+                <input type="checkbox" formControlName="unlimited_tokens" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="closePlanForm()">Cancelar</button>
+            <button type="button" class="btn-save" (click)="savePlan()"
+              [disabled]="planForm.invalid || isSavingPlan">
+              <span *ngIf="isSavingPlan" class="mini-spinner white"></span>
+              <i class="bi bi-check-lg" *ngIf="!isSavingPlan"></i>
+              {{ isSavingPlan ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</main>

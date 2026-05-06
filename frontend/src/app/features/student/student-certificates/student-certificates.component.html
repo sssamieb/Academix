@@ -1,0 +1,62 @@
+<main class="certs-wrap">
+
+  <div class="page-header">
+    <h1><i class="bi bi-patch-check-fill"></i> Mis certificados</h1>
+    <p>Descargá tus certificados de los cursos completados</p>
+  </div>
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando certificados...</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && certificates.length === 0">
+    <i class="bi bi-award"></i>
+    <h3>Todavía no tenés certificados</h3>
+    <p>Completá un curso y aprobá el examen final para obtener tu certificado.</p>
+    <button class="btn-explore" (click)="router.navigate(['/student/explore'])">
+      <i class="bi bi-compass"></i>
+      Explorar cursos
+    </button>
+  </div>
+
+  <div class="certs-grid" *ngIf="!isLoading && certificates.length > 0">
+    <div class="cert-card" *ngFor="let cert of certificates">
+
+      <div class="cert-thumb" [style.background]="getCategoryColor(cert.course?.category?.name)">
+        <i class="bi bi-award-fill"></i>
+        <div class="cert-type-badge">
+          Certificado
+        </div>
+      </div>
+
+      <div class="cert-body">
+        <span class="cert-category">{{ cert.course?.category?.name }}</span>
+        <h3>{{ cert.course?.title }}</h3>
+        <p class="cert-instructor">
+          <i class="bi bi-person-fill"></i>
+          {{ cert.course?.instructor?.name }}
+        </p>
+        <div class="cert-meta">
+          <span class="cert-date">
+            <i class="bi bi-calendar3"></i>
+            {{ cert.issued_at | date:'d/MM/yyyy' }}
+          </span>
+          <span class="cert-code">
+            <i class="bi bi-hash"></i>
+            {{ cert.certificate_code }}
+          </span>
+        </div>
+      </div>
+
+      <div class="cert-footer">
+<button class="btn-download" (click)="router.navigate(['/student/certificates', cert.id, 'view'])">
+  <i class="bi bi-eye"></i>
+  Ver y descargar
+</button>
+      </div>
+
+    </div>
+  </div>
+
+</main>

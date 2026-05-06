@@ -1,0 +1,159 @@
+<main class="forum-wrap">
+
+  <div class="page-header">
+    <div>
+      <h1><i class="bi bi-chat-dots-fill"></i> Foro</h1>
+      <p>Respondé las preguntas de tus estudiantes</p>
+    </div>
+  </div>
+
+  <!-- Loading cursos -->
+  <div class="loading-full" *ngIf="isLoadingCourses">
+    <div class="spinner"></div>
+    <p>Cargando cursos...</p>
+  </div>
+
+  <!-- Sin cursos publicados -->
+  <div class="empty-state" *ngIf="!isLoadingCourses && courses.length === 0">
+    <i class="bi bi-chat-dots"></i>
+    <h3>No tenés cursos publicados</h3>
+    <p>El foro estará disponible cuando tengas al menos un curso publicado.</p>
+  </div>
+
+  <div class="forum-layout" *ngIf="!isLoadingCourses && courses.length > 0">
+
+    <!-- Sidebar de cursos -->
+    <div class="courses-sidebar">
+      <div class="sidebar-title">Tus cursos</div>
+      <div class="course-item"
+        *ngFor="let course of courses"
+        [class.active]="selectedCourse?.id === course.id"
+        (click)="selectCourse(course)">
+        <div class="course-item-icon"
+          [style.background]="course.id % 2 === 0 ? '#4F46E5' : '#06B6D4'">
+          <i class="bi bi-play-btn-fill"></i>
+        </div>
+        <div class="course-item-info">
+          <span class="course-item-title">{{ course.title }}</span>
+          <span class="course-item-category">{{ course.category?.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de posts -->
+    <div class="forum-panel">
+
+      <!-- Stats del curso seleccionado -->
+      <div class="forum-stats" *ngIf="selectedCourse">
+        <div class="forum-stat">
+          <strong>{{ forumPosts.length }}</strong>
+          <span>publicaciones</span>
+        </div>
+        <div class="forum-stat">
+          <strong>{{ getTotalReplies() }}</strong>
+          <span>respuestas</span>
+        </div>
+        <div class="forum-stat pending" *ngIf="getPendingPosts() > 0">
+          <strong>{{ getPendingPosts() }}</strong>
+          <span>sin responder</span>
+        </div>
+      </div>
+
+      <!-- Loading posts -->
+      <div class="loading-posts" *ngIf="isLoadingPosts">
+        <div class="mini-spinner"></div>
+        <span>Cargando preguntas...</span>
+      </div>
+
+      <!-- Empty posts -->
+      <div class="empty-posts" *ngIf="!isLoadingPosts && forumPosts.length === 0">
+        <i class="bi bi-chat-square-dots"></i>
+        <p>No hay publicaciones en este curso todavía.</p>
+      </div>
+
+      <!-- Posts -->
+      <div class="posts-list" *ngIf="!isLoadingPosts && forumPosts.length > 0">
+        <div class="post-card"
+          *ngFor="let post of forumPosts"
+          [class.has-replies]="post.replies?.length > 0"
+          [class.pending]="!post.replies?.length">
+
+          <div class="post-header">
+            <div class="avatar-wrap" [class.premium]="isPremium(post.user)">
+              <div class="avatar-inner post-avatar" [style.background]="post.user?.avatar_color ?? '#4F46E5'">
+                {{ getInitials(post.user?.name) }}
+              </div>
+              <span class="premium-crown" *ngIf="isPremium(post.user)">👑</span>
+            </div>
+            <div class="post-meta">
+              <span class="post-username">{{ post.user?.name }}</span>
+              <span class="post-time">{{ getTimeAgo(post.created_at) }}</span>
+            </div>
+            <span class="post-status-badge pending-badge" *ngIf="!post.replies?.length">
+              Sin responder
+            </span>
+            <span class="post-status-badge replied-badge" *ngIf="post.replies?.length">
+              Respondido
+            </span>
+            <button class="btn-delete" (click)="deletePost(post.id)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+
+          <div class="post-content">{{ post.content }}</div>
+
+          <!-- Respuestas existentes -->
+          <div class="replies-list" *ngIf="post.replies?.length > 0">
+            <div class="reply-card"
+              *ngFor="let reply of post.replies"
+              [class.my-reply]="reply.user_id === selectedCourse?.instructor_id">
+              <div class="reply-header">
+                <div class="avatar-wrap" [class.premium]="isPremium(reply.user)">
+                  <div class="avatar-inner post-avatar small" [style.background]="reply.user?.avatar_color ?? '#4F46E5'">
+                    {{ getInitials(reply.user?.name) }}
+                  </div>
+                  <span class="premium-crown" *ngIf="isPremium(reply.user)">👑</span>
+                </div>
+                <div class="post-meta">
+                  <span class="post-username">
+                    {{ reply.user?.name }}
+                    <span class="instructor-tag"
+                      *ngIf="reply.user_id === selectedCourse?.instructor_id">
+                      Tú
+                    </span>
+                  </span>
+                  <span class="post-time">{{ getTimeAgo(reply.created_at) }}</span>
+                </div>
+                <button class="btn-delete small"
+                  (click)="deleteReply(post.id, reply.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+              <div class="reply-content">{{ reply.content }}</div>
+            </div>
+          </div>
+
+          <!-- Caja de respuesta -->
+          <div class="reply-box">
+            <textarea
+              [(ngModel)]="replyContent[post.id]"
+              placeholder="Escribí tu respuesta como instructor..."
+              class="reply-textarea"
+              rows="2">
+            </textarea>
+            <button class="btn-reply"
+              (click)="submitReply(post.id)"
+              [disabled]="!replyContent[post.id]?.trim() || isReplying[post.id]">
+              <span *ngIf="isReplying[post.id]" class="mini-spinner white"></span>
+              <i class="bi bi-send-fill" *ngIf="!isReplying[post.id]"></i>
+              {{ isReplying[post.id] ? 'Enviando...' : 'Responder' }}
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>

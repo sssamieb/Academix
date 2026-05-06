@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, map } from 'rxjs';
 import {
   AuthResponse,
   LoginPayload,
@@ -171,4 +171,23 @@ saveSessionFromSocial(token: string, user: User): void {
     const user = localStorage.getItem(this.USER_KEY);
     return user ? JSON.parse(user) : null;
   }
+
+  refreshUser(): Observable<User> {
+  return this.http.get<{ user: User }>(`${this.API_URL}/auth/me`).pipe(
+    tap((res) => {
+      localStorage.setItem(this.USER_KEY, JSON.stringify(res.user));
+      this.currentUser.set(res.user);
+    }),
+    map((res) => res.user)
+  );
+}
+
+updateProfile(data: { avatar_color: string }): Observable<{ user: User }> {
+  return this.http.post<{ user: User }>(`${this.API_URL}/auth/profile`, data).pipe(
+    tap((res) => {
+      localStorage.setItem(this.USER_KEY, JSON.stringify(res.user));
+      this.currentUser.set(res.user); // ← actualiza el signal
+    })
+  );
+}
 }

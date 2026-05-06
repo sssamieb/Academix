@@ -1,0 +1,83 @@
+<main class="plans-wrap">
+
+  <div class="plans-hero">
+    <h1>Elegí tu plan</h1>
+    <p>Accedé a todos los cursos de Academix con tokens mensuales</p>
+  </div>
+
+  <div class="loading-wrap" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando planes...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+
+    <!-- Plan actual -->
+    <div class="current-plan-banner" *ngIf="currentStatus?.subscription_status === 'active'">
+      <i class="bi bi-patch-check-fill"></i>
+      <span>Tu plan actual: <strong>{{ currentStatus?.plan?.name }}</strong> —
+        {{ currentStatus?.tokens }} tokens disponibles</span>
+      <button class="btn-cancel-sub" (click)="cancelSubscription()">
+        Cancelar suscripción
+      </button>
+    </div>
+
+    <!-- Grid de planes -->
+    <div class="plans-grid">
+      <div class="plan-card"
+        *ngFor="let plan of [
+          {type:'basic',   name:'Básico',  price:'9.99'},
+          {type:'pro',     name:'Pro',     price:'19.99'},
+          {type:'premium', name:'Premium', price:'69.99'}
+        ]"
+        [class.popular]="getConfig(plan.type).popular"
+        [class.current]="isCurrentPlan(plan.type)">
+
+        <div class="popular-badge" *ngIf="getConfig(plan.type).popular">
+          <i class="bi bi-star-fill"></i> Más popular
+        </div>
+
+        <div class="plan-icon" [style.background]="getConfig(plan.type).color + '20'"
+          [style.color]="getConfig(plan.type).color">
+          <i class="bi" [class]="getConfig(plan.type).icon"></i>
+        </div>
+
+        <h2>{{ plan.name }}</h2>
+
+        <div class="plan-price">
+          <span class="price-amount">${{ plan.price }}</span>
+          <span class="price-period">/mes</span>
+        </div>
+
+        <ul class="plan-features">
+          <li *ngFor="let feature of getConfig(plan.type).features"
+            [class.included]="feature.included"
+            [class.excluded]="!feature.included">
+            <i class="bi"
+              [class.bi-check-circle-fill]="feature.included"
+              [class.bi-x-circle-fill]="!feature.included"></i>
+            <span>{{ feature.text }}</span>
+          </li>
+        </ul>
+
+        <button class="btn-subscribe"
+          [class.btn-current]="isCurrentPlan(plan.type)"
+          [disabled]="isCurrentPlan(plan.type) || processingPlan === plan.type"
+          (click)="subscribe(plan)"
+          [style.background]="isCurrentPlan(plan.type) ? '#E2E8F0' : getConfig(plan.type).color">
+          <span class="btn-spinner" *ngIf="processingPlan === plan.type"></span>
+          <i class="bi bi-check-lg" *ngIf="isCurrentPlan(plan.type)"></i>
+          <i class="bi bi-lightning-fill"
+            *ngIf="!isCurrentPlan(plan.type) && processingPlan !== plan.type"></i>
+          {{ isCurrentPlan(plan.type) ? 'Plan actual' :
+             processingPlan === plan.type ? 'Procesando...' : 'Suscribirme' }}
+        </button>
+
+      </div>
+    </div>
+
+    
+
+  </ng-container>
+
+</main>

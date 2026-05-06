@@ -1,0 +1,250 @@
+$primary:   #2D2D7B;
+$secondary: #4F46E5;
+$accent:    #06B6D4;
+$dark:      #1E293B;
+$gray:      #64748B;
+$light:     #F8FAFC;
+$white:     #FFFFFF;
+$border:    #E2E8F0;
+$success:   #10B981;
+$gold:      #F59E0B;
+$error:     #EF4444;
+
+.reports-wrap {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1200px;
+}
+
+.loading-full {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 6rem;
+  color: $gray;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid $border;
+  border-top-color: $secondary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: $dark;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    i { color: $secondary; }
+  }
+  p { font-size: 0.85rem; color: $gray; margin-top: 0.3rem; }
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #10B981;
+  color: $white;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover { background: #059669; }
+}
+
+// Totales
+.totals-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.total-card {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s;
+  &:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
+}
+
+.total-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  i { font-size: 1.3rem; }
+
+  &.revenue     { background: rgba(245,158,11,0.1);  i { color: $gold;      } }
+  &.students    { background: rgba(79,70,229,0.1);   i { color: $secondary; } }
+  &.enrollments { background: rgba(6,182,212,0.1);   i { color: $accent;    } }
+  &.active      { background: rgba(16,185,129,0.1);  i { color: $success;   } }
+}
+
+.total-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  span   { font-size: 0.75rem; color: $gray; }
+  strong { font-size: 1.4rem; font-weight: 800; color: $dark; }
+}
+
+// Charts
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.chart-card {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 16px;
+  overflow: hidden;
+
+  &.wide { grid-column: span 1; }
+}
+
+.chart-header {
+  padding: 1.25rem 1.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  h3   { font-size: 0.95rem; font-weight: 700; color: $dark; }
+  .chart-sub { font-size: 0.75rem; color: $gray; }
+}
+
+.chart-body {
+  padding: 0.5rem 1.5rem 1.5rem;
+  max-height: 280px;
+
+  canvas { max-height: 260px; }
+
+  &.chart-body-sm {
+    max-height: 240px;
+    canvas { max-height: 220px; }
+  }
+}
+
+// Top cursos
+.top-courses-list {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.top-course-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: $light;
+  transition: all 0.15s;
+  &:hover { background: rgba(79,70,229,0.04); }
+}
+
+.rank {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: $border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: $gray;
+  flex-shrink: 0;
+
+  &.top3 { background: rgba(245,158,11,0.15); color: $gold; }
+}
+
+.course-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  overflow: hidden;
+}
+
+.course-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $dark;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.course-instructor {
+  font-size: 0.72rem;
+  color: $gray;
+}
+
+.course-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
+.enrollments-count {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: $secondary;
+  i { font-size: 0.72rem; }
+}
+
+.course-category-tag {
+  font-size: 0.68rem;
+  color: $gray;
+  background: $border;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+@media (max-width: 1024px) {
+  .totals-grid { grid-template-columns: repeat(2, 1fr); }
+  .charts-row  { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .reports-wrap { padding: 1rem; }
+  .totals-grid  { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .totals-grid { grid-template-columns: 1fr; }
+}

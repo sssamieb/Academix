@@ -1,0 +1,364 @@
+@use 'sass:color';
+
+$primary:   #2D2D7B;
+$secondary: #4F46E5;
+$dark:      #1E293B;
+$gray:      #64748B;
+$light:     #F8FAFC;
+$white:     #FFFFFF;
+$border:    #E2E8F0;
+$success:   #10B981;
+$error:     #EF4444;
+$gold:      #F59E0B;
+
+.settings-wrap {
+  min-height: calc(100vh - 64px);
+  background: $light;
+  display: flex;
+  flex-direction: column;
+}
+
+// Header
+.settings-header {
+  background: linear-gradient(135deg, #0F0F3D 0%, #1a1a6e 60%, #2D2D7B 100%);
+  padding: 1.5rem 2rem;
+}
+
+.settings-header-content {
+  max-width: 800px;
+  margin: 0 auto;
+
+  h1 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    i { color: #06B6D4; }
+  }
+  p { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-top: 0.25rem; }
+}
+
+// Layout
+.settings-layout {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1.5rem 4rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// Tabs
+.settings-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 14px;
+  padding: 0.4rem;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  color: $gray;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+
+  &:hover { background: $light; color: $dark; }
+
+  &.active {
+    background: $secondary;
+    color: $white;
+    box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+  }
+}
+
+// Panel
+.settings-panel {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 16px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panel-header {
+  h2 { font-size: 1.1rem; font-weight: 800; color: $dark; }
+  p  { font-size: 0.82rem; color: $gray; margin-top: 0.25rem; }
+}
+
+// Password form
+.password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 480px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: $dark;
+  }
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  padding: 0.7rem 2.5rem 0.7rem 0.9rem;
+  font-size: 0.88rem;
+  font-family: inherit;
+  color: $dark;
+  outline: none;
+  transition: border-color 0.2s;
+  background: $white;
+
+  &:focus { border-color: $secondary; }
+  &.error { border-color: $error; }
+}
+
+.toggle-pw {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: $gray;
+  cursor: pointer;
+  padding: 0.2rem;
+  &:hover { color: $dark; }
+}
+
+.field-error {
+  font-size: 0.75rem;
+  color: $error;
+}
+
+.btn-save {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: $secondary;
+  color: $white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) { background: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// Payments
+.loading-payments {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $gray;
+  font-size: 0.85rem;
+  padding: 2rem;
+  justify-content: center;
+}
+
+.empty-payments {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem;
+  text-align: center;
+
+  i  { font-size: 3rem; color: #CBD5E1; }
+  h3 { font-size: 1rem; font-weight: 700; color: $dark; }
+  p  { font-size: 0.85rem; color: $gray; }
+}
+
+.btn-see-plans {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: $secondary;
+  color: $white;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover { background: $primary; }
+}
+
+.payments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.payment-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: $light;
+  border: 1px solid $border;
+  border-radius: 12px;
+  transition: all 0.2s;
+
+  &:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+}
+
+.payment-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(79,70,229,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i { font-size: 1.1rem; color: $secondary; }
+}
+
+.payment-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.payment-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.payment-plan {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: $dark;
+}
+
+.plan-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.5rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  &.badge-basic   { background: rgba(100,116,139,0.1); color: $gray; }
+  &.badge-pro     { background: rgba(245,158,11,0.1);  color: $gold; }
+  &.badge-premium { background: rgba(79,70,229,0.1);   color: $secondary; }
+}
+
+.payment-date {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: $gray;
+  i { font-size: 0.7rem; }
+}
+
+.payment-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
+.amount {
+  font-size: 1rem;
+  font-weight: 800;
+  color: $dark;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+
+  &.succeeded { color: $success; }
+  &.failed    { color: $error; }
+}
+
+.mini-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid $border;
+  border-top-color: $secondary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+
+  &.white { border-color: rgba(255,255,255,0.3); border-top-color: $white; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+  .settings-layout { padding: 1rem 1rem 3rem; margin: 1rem auto; }
+  .settings-header { padding: 1.25rem 1rem; }
+  .tab-btn span    { display: none; }
+  .tab-btn         { padding: 0.65rem; }
+}
+
+.google-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: rgba(66,133,244,0.08);
+  border: 1px solid rgba(66,133,244,0.2);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  margin-top: 0.75rem;
+
+  i { font-size: 1.1rem; color: #4285F4; flex-shrink: 0; margin-top: 0.1rem; }
+
+  div {
+    strong { display: block; font-size: 0.85rem; color: $dark; margin-bottom: 0.2rem; }
+    p      { font-size: 0.78rem; color: $gray; margin: 0; }
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-layout { padding: 0.75rem 0.75rem 2rem; }
+  .settings-panel  { padding: 1.25rem; }
+  .payment-card    { flex-wrap: wrap; }
+  .payment-amount  { width: 100%; align-items: flex-start; margin-top: 0.5rem; }
+  .btn-save        { width: 100%; justify-content: center; }
+}

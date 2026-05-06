@@ -38,16 +38,13 @@
     <div class="course-card" *ngFor="let course of filteredCourses">
 
       <div class="course-card-header">
-        <div class="course-thumb">
-          <img *ngIf="course.thumbnail" [src]="course.thumbnail" [alt]="course.title" />
-          <div class="course-thumb-placeholder" *ngIf="!course.thumbnail">
-            <i class="bi bi-image"></i>
-          </div>
-        </div>
-        <span class="status-badge" [class]="getStatusClass(course.status)">
-          {{ statusLabels[course.status] }}
-        </span>
-      </div>
+  <div class="course-thumb">
+    <div class="course-pattern" [innerHTML]="getCoursePattern(course)"></div>
+  </div>
+  <span class="status-badge" [class]="getStatusClass(course.status)">
+    {{ statusLabels[course.status] }}
+  </span>
+</div>
 
       <div class="course-card-body">
         <span class="course-category">{{ course.category?.name }}</span>

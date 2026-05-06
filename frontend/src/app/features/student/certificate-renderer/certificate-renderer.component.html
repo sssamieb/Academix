@@ -1,0 +1,167 @@
+<div class="renderer-wrap">
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando certificado...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && certificate">
+
+    <div class="renderer-toolbar">
+      <button class="btn-back" (click)="goBack()">
+        <i class="bi bi-arrow-left"></i>
+        Mis certificados
+      </button>
+      <button class="btn-download" (click)="downloadPDF()" [disabled]="isDownloading">
+        <span *ngIf="isDownloading" class="btn-spinner"></span>
+        <i class="bi bi-download" *ngIf="!isDownloading"></i>
+        {{ isDownloading ? 'Generando PDF...' : 'Descargar PDF' }}
+      </button>
+    </div>
+
+    <div class="cert-preview-wrap">
+
+      <!-- BÁSICO -->
+      <div #certRef class="cert cert-basic" *ngIf="certType === 'basic'">
+        <div class="basic-deco-tl"></div>
+        <div class="basic-deco-tr"></div>
+        <div class="basic-deco-bl"></div>
+        <div class="basic-deco-br"></div>
+
+        <div class="basic-header">
+          <div class="basic-logo">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>ACADEMIX</span>
+          </div>
+        </div>
+
+        <div class="basic-title">
+          <span class="basic-title-top">Certificado</span>
+          <span class="basic-title-bottom">DE RECONOCIMIENTO</span>
+        </div>
+
+        <div class="basic-otorgado">Otorgado a:</div>
+        <div class="basic-student">{{ studentName }}</div>
+        <div class="basic-divider"></div>
+
+        <div class="basic-desc">
+          Por haber completado satisfactoriamente el curso de<br>
+          <strong>{{ courseName }}</strong>
+        </div>
+
+        <div class="basic-footer">
+  <div class="basic-date-left">
+    <small>{{ issuedDate }}</small>
+    <small>{{ certCode }}</small>
+  </div>
+  <div class="basic-signature">
+    <div class="basic-sig-name-script">{{ instructorName }}</div>
+    <div class="basic-sig-line"></div>
+    <div class="basic-sig-name">{{ instructorName | uppercase }}</div>
+    <div class="basic-sig-role">Instructor/a</div>
+  </div>
+  <div class="basic-spacer"></div>
+</div>
+      </div><!-- ← cierre cert-basic -->
+
+      <!-- PRO -->
+<div #certRef class="cert cert-pro" *ngIf="certType === 'pro'">
+  <div class="pro-border"></div>
+  <div class="pro-corner pro-corner-tl"></div>
+  <div class="pro-corner pro-corner-tr"></div>
+  <div class="pro-corner pro-corner-bl"></div>
+  <div class="pro-corner pro-corner-br"></div>
+
+<div class="pro-title-wrap">
+  <div class="pro-title">CERTIFICADO</div>
+  <div class="pro-subtitle">DE EXCELENCIA</div>
+  <div class="pro-ornament">— ✦ —</div>
+</div>
+
+  <div class="pro-intro">Academix tiene el placer de otorgar a</div>
+  <div class="pro-student">{{ studentName }}</div>
+  <div class="pro-student-line"></div>
+  <div class="pro-desc">
+    por haber completado satisfactoriamente el curso de <strong>{{ courseName }}</strong>
+  </div>
+
+  <div class="pro-footer">
+    <div class="pro-signature">
+      <div class="pro-sig-name-script">{{ instructorName }}</div>
+      <div class="pro-sig-line"></div>
+      <div class="pro-sig-name">{{ instructorName | uppercase }}</div>
+      <div class="pro-sig-role">Instructor/a</div>
+    </div>
+
+<div class="pro-seal">
+  <img src="https://i.ibb.co/qX5yS7b/Dise-o-sin-t-tulo-3.png" 
+       class="pro-seal-img" alt="sello" crossorigin="anonymous" />
+</div>
+
+    <div class="pro-logo-block">
+  <div class="pro-logo-top">
+    <i class="bi bi-mortarboard-fill"></i>
+    <span>ACADEMIX</span>
+  </div>
+  <div class="pro-logo-line"></div>
+  <div class="pro-sig-name">Academix</div>
+  <small>Plataforma Educativa</small>
+</div>
+  </div>
+</div>
+
+<!-- PREMIUM -->
+<div #certRef class="cert cert-premium" *ngIf="certType === 'premium'">
+
+  <!-- Bandera como imagen en esquina superior izquierda -->
+  <img src="https://i.ibb.co/1fpw5mk8/bandera.png"
+       class="prem-flag-img" alt="bandera" crossorigin="anonymous" />
+
+  <div class="prem-content">
+    <div class="prem-border">
+
+      <div class="prem-title">CERTIFICADO</div>
+      <div class="prem-intro">
+        El Estado Plurinacional de Bolivia tiene el honor de otorgar el<br>
+        siguiente certificado a:
+      </div>
+      <div class="prem-student">{{ studentName }}</div>
+      <div class="prem-line"></div>
+      <div class="prem-desc">
+        Por haber completado con excelencia el curso de <strong>{{ courseName }}</strong>
+      </div>
+
+      <div class="prem-footer">
+
+        <div class="prem-signature">
+          <div class="prem-sig-name-script">{{ instructorName }}</div>
+          <div class="prem-sig-line"></div>
+          <div class="prem-sig-name">{{ instructorName }}</div>
+          <div class="prem-sig-role">Instructor/a</div>
+        </div>
+
+        <!-- Sello como imagen -->
+        <div class="prem-seal">
+          <img src="https://i.ibb.co/8498W9tJ/sello-bo.png"
+               class="prem-seal-img" alt="sello" crossorigin="anonymous" />
+        </div>
+
+        <div class="prem-logo-block">
+          <div class="prem-logo-top">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>ACADEMIX</span>
+          </div>
+          <div class="prem-logo-line"></div>
+          <div class="prem-sig-name">Academix</div>
+          <small>Plataforma Educativa</small>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+
+  </ng-container>
+</div>

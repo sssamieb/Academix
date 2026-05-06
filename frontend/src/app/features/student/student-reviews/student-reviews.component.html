@@ -1,0 +1,131 @@
+<div class="reviews-wrap">
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando reseñas...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+
+    <!-- Header -->
+    <div class="reviews-header">
+      <div class="reviews-header-content">
+        <button class="btn-back" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+          Volver al curso
+        </button>
+        <div class="header-info">
+          <h1><i class="bi bi-star-fill"></i> Reseñas</h1>
+          <p *ngIf="course">{{ course.title }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reviews-content">
+
+      <!-- Resumen de calificación -->
+      <div class="rating-summary-card" *ngIf="totalReviews > 0">
+        <div class="rating-big">
+          <span class="rating-number">{{ avgRating }}</span>
+          <div class="rating-stars-row">
+            <i class="bi" *ngFor="let s of [1,2,3,4,5]"
+              [class]="getReviewStarClass(s, avgRating ?? 0)"
+              style="color: #F59E0B; font-size: 1.1rem;"></i>
+          </div>
+          <span class="rating-total">{{ totalReviews }} reseña{{ totalReviews !== 1 ? 's' : '' }}</span>
+        </div>
+      </div>
+
+      <!-- Formulario si completó -->
+      <div class="review-form-card" *ngIf="canReview">
+        <div class="form-header">
+          <i class="bi bi-patch-check-fill" style="color: #10B981; font-size: 1.2rem;"></i>
+          <div>
+            <strong>¡Completaste el curso!</strong>
+            <p>Contá tu experiencia para ayudar a otros estudiantes.</p>
+          </div>
+        </div>
+
+        <div class="stars-input">
+          <i class="bi" *ngFor="let s of [1,2,3,4,5]"
+            [class]="getStarClass(s)"
+            (click)="setRating(s)"
+            (mouseenter)="setHover(s)"
+            (mouseleave)="clearHover()"
+            [style.transform]="(hoverRating || newRating) >= s ? 'scale(1.2)' : 'scale(1)'">
+          </i>
+        </div>
+
+        <p class="rating-label" *ngIf="newRating > 0">{{ getRatingLabel() }}</p>
+
+        <textarea
+          [(ngModel)]="newComment"
+          placeholder="¿Qué aprendiste? ¿Qué mejorarías? (opcional)"
+          class="review-textarea"
+          rows="4">
+        </textarea>
+
+        <div class="form-footer">
+          <span class="char-count"
+            [style.color]="newComment.length > 900 ? '#EF4444' : '#94A3B8'">
+            {{ newComment.length }}/1000
+          </span>
+          <button class="btn-submit"
+            (click)="submitReview()"
+            [disabled]="!newRating || isSubmitting || newComment.length > 1000">
+            <span *ngIf="isSubmitting" class="mini-spinner white"></span>
+            <i class="bi bi-send-fill" *ngIf="!isSubmitting"></i>
+            {{ isSubmitting ? 'Enviando...' : 'Enviar reseña' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Ya dejó reseña -->
+      <div class="already-reviewed" *ngIf="alreadyReviewed">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>Ya dejaste tu reseña para este curso.</span>
+      </div>
+
+      <!-- No completó aún -->
+      <div class="not-completed-notice"
+        *ngIf="!canReview && !alreadyReviewed && enrollmentStatus !== 'completed'">
+        <i class="bi bi-info-circle-fill"></i>
+        <span>Completá el curso y aprobá el examen final para dejar tu reseña.</span>
+      </div>
+
+      <!-- Empty -->
+      <div class="empty-state" *ngIf="reviews.length === 0">
+        <i class="bi bi-star"></i>
+        <h3>Todavía no hay reseñas</h3>
+        <p>Sé el primero en dejar tu opinión sobre este curso.</p>
+      </div>
+
+      <!-- Lista -->
+      <div class="reviews-list" *ngIf="reviews.length > 0">
+        <h2>Opiniones de estudiantes</h2>
+        <div class="review-card" *ngFor="let review of reviews">
+          <div class="review-header">
+            <div class="avatar-wrap" [class.premium]="isPremium(review.user)">
+              <div class="avatar-inner review-avatar" [style.background]="review.user?.avatar_color ?? '#4F46E5'">
+                {{ getInitials(review.user?.name) }}
+              </div>
+              <span class="premium-crown" *ngIf="isPremium(review.user)">👑</span>
+            </div>
+            <div class="review-meta">
+              <span class="review-username">{{ review.user?.name }}</span>
+              <div class="review-stars">
+                <i class="bi" *ngFor="let s of [1,2,3,4,5]"
+                  [class]="getReviewStarClass(s, review.rating)"
+                  style="color: #F59E0B; font-size: 0.85rem;"></i>
+              </div>
+            </div>
+            <span class="review-time">{{ getTimeAgo(review.created_at) }}</span>
+          </div>
+          <p class="review-comment" *ngIf="review.comment">{{ review.comment }}</p>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+</div>

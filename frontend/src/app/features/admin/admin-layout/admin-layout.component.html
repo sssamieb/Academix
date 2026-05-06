@@ -22,27 +22,31 @@
 
       <div class="nav-section">
         <span class="nav-section-label" *ngIf="!sidebarCollapsed">Gestión</span>
-        <a class="nav-item" routerLink="/admin/register-instructor" routerLinkActive="active">
-          <i class="bi bi-person-badge"></i>
-          <span *ngIf="!sidebarCollapsed">Instructores</span>
-        </a>
-        <a class="nav-item" routerLink="/admin/courses" routerLinkActive="active">
-          <i class="bi bi-play-btn"></i>
-          <span *ngIf="!sidebarCollapsed">Cursos</span>
-        </a>
-        <a class="nav-item" href="#">
-          <i class="bi bi-people"></i>
-          <span *ngIf="!sidebarCollapsed">Estudiantes</span>
-        </a>
+        <a class="nav-item" routerLink="/admin/instructors" routerLinkActive="active">
+  <i class="bi bi-person-badge"></i>
+  <span *ngIf="!sidebarCollapsed">Instructores</span>
+</a>
+<a class="nav-item" routerLink="/admin/courses" routerLinkActive="active">
+  <i class="bi bi-play-btn"></i>
+  <span *ngIf="!sidebarCollapsed">Cursos</span>
+</a>
+<a class="nav-item" routerLink="/admin/students" routerLinkActive="active">
+  <i class="bi bi-people"></i>
+  <span *ngIf="!sidebarCollapsed">Estudiantes</span>
+</a>
+<a class="nav-item" routerLink="/admin/reviews" routerLinkActive="active">
+  <i class="bi bi-star-fill"></i>
+  <span *ngIf="!sidebarCollapsed">Reseñas</span>
+</a>
       </div>
 
       <div class="nav-section">
         <span class="nav-section-label" *ngIf="!sidebarCollapsed">Sistema</span>
-        <a class="nav-item" href="#">
-          <i class="bi bi-bar-chart-line"></i>
+        <a class="nav-item" routerLink="/admin/reports" routerLinkActive="active">
+          <i class="bi bi-bar-chart-line-fill"></i>
           <span *ngIf="!sidebarCollapsed">Reportes</span>
         </a>
-        <a class="nav-item" href="#">
+        <a class="nav-item" routerLink="/admin/settings" routerLinkActive="active">
           <i class="bi bi-gear"></i>
           <span *ngIf="!sidebarCollapsed">Configuración</span>
         </a>

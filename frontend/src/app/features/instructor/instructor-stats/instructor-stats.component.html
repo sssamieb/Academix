@@ -1,0 +1,46 @@
+<main class="stats-wrap">
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando estadísticas...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && data">
+
+    <div class="page-header">
+      <h1><i class="bi bi-bar-chart-line-fill"></i> Estadísticas</h1>
+      <p>Métricas de tus cursos y estudiantes</p>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-header">
+          <h3>Inscripciones por curso</h3>
+        </div>
+        <div class="chart-body">
+          <canvas id="enrollmentsChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Estado de inscripciones</h3>
+        </div>
+        <div class="chart-body">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card full">
+      <div class="chart-header">
+        <h3>Nuevas inscripciones por mes</h3>
+        <span class="chart-sub">Últimos 6 meses</span>
+      </div>
+      <div class="chart-body">
+        <canvas id="monthlyChart"></canvas>
+      </div>
+    </div>
+
+  </ng-container>
+</main>

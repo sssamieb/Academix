@@ -621,3 +621,8 @@ $border:    #E2E8F0;
   .topbar       { padding: 1rem; }
   .topbar-date  { display: none; }
 }
+
+@media (max-width: 480px) {
+  .stats-grid              { grid-template-columns: 1fr; }
+  .btn-register-instructor { width: 100%; justify-content: center; }
+}

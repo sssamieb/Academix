@@ -1,0 +1,238 @@
+<div class="detail-wrap">
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando curso...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && course">
+
+    <!-- Hero -->
+    <div class="course-hero">
+      <div class="hero-content">
+        <button class="btn-back" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+          Volver al catálogo
+        </button>
+
+        <div class="course-meta-top">
+          <span class="category-tag">{{ course.category?.name }}</span>
+          <span class="level-tag">{{ course.level | titlecase }}</span>
+        </div>
+
+        <h1>{{ course.title }}</h1>
+        <p class="course-desc">{{ shortDescription }}</p>
+
+        <div class="course-stats">
+          <div class="stat" *ngIf="getTotalDuration()">
+            <i class="bi bi-clock-fill"></i>
+            <span>{{ getTotalDuration() }} de contenido</span>
+          </div>
+          <div class="stat">
+            <i class="bi bi-play-circle-fill"></i>
+            <span>{{ getTotalLessons() }} lecciones</span>
+          </div>
+          <div class="stat">
+            <i class="bi bi-collection-fill"></i>
+            <span>{{ getContentSections().length }} secciones</span>
+          </div>
+          <div class="stat">
+            <i class="bi bi-people-fill"></i>
+            <span>{{ course.enrollments_count ?? 0 }} estudiantes</span>
+          </div>
+        </div>
+
+        <div class="instructor-info">
+          <div class="instructor-avatar">
+            {{ course.instructor?.name?.charAt(0) }}
+          </div>
+          <div>
+            <span class="instructor-label">Instructor</span>
+            <strong>{{ course.instructor?.name }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card de inscripción -->
+      <div class="enroll-card">
+
+        <!-- Ya inscrito -->
+        <ng-container *ngIf="isEnrolled">
+          <div class="enrolled-badge">
+            <i class="bi bi-patch-check-fill"></i>
+            <span>Ya estás inscrito</span>
+          </div>
+
+          <button class="btn-enroll btn-go-course"
+            (click)="router.navigate(['/student/my-courses', courseId])">
+            <i class="bi bi-play-fill"></i>
+            Ir al curso
+          </button>
+
+          <button class="btn-refund" *ngIf="refundEligible" (click)="requestRefund()">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Solicitar reembolso
+          </button>
+
+          <p class="refund-notice" *ngIf="refundEligible">
+            <i class="bi bi-info-circle"></i>
+            Podés solicitar reembolso mientras estés en el período de prueba.
+          </p>
+        </ng-container>
+
+        <!-- No inscrito -->
+        <ng-container *ngIf="!isEnrolled">
+          <div class="enroll-price">
+            <i class="bi bi-coin"></i>
+            <span>{{ course.token_price }}</span>
+            <small>tokens</small>
+          </div>
+
+          <button class="btn-enroll" (click)="enroll()" [disabled]="isEnrolling">
+            <span class="btn-spinner" *ngIf="isEnrolling"></span>
+            <i class="bi bi-lightning-fill" *ngIf="!isEnrolling"></i>
+            {{ isEnrolling ? 'Procesando...' : 'Inscribirme ahora' }}
+          </button>
+
+          <div class="enroll-features">
+            <div class="enroll-feature">
+              <i class="bi bi-patch-check-fill"></i>
+              <span>Certificado al completar</span>
+            </div>
+            <div class="enroll-feature">
+              <i class="bi bi-arrow-counterclockwise"></i>
+              <span>Período de prueba con reembolso</span>
+            </div>
+          </div>
+        </ng-container>
+
+      </div><!-- ← cierre enroll-card -->
+
+    </div><!-- ← cierre course-hero -->
+
+    <!-- Contenido del curso -->
+    <div class="course-content">
+
+      <!-- Presentación -->
+      <div class="content-section" *ngIf="getPresentationSection()?.presentation_content">
+        <h2>Acerca de este curso</h2>
+        <div class="presentation-content ql-editor"
+          [innerHTML]="getPresentationSection()?.presentation_content">
+        </div>
+      </div>
+
+      <!-- Temario -->
+      <div class="content-section">
+        <h2>Contenido del curso</h2>
+        <p class="section-summary">
+          {{ getContentSections().length }} secciones · {{ getTotalLessons() }} lecciones
+          <span *ngIf="getTotalDuration()"> · {{ getTotalDuration() }} de duración total</span>
+        </p>
+
+        <div class="accordion-list">
+
+          <div class="accordion-item"
+            *ngFor="let section of getContentSections(); let si = index">
+
+            <div class="accordion-head" (click)="toggleSection(si)">
+              <div class="accordion-head-left">
+                <div class="section-num">{{ si + 1 }}</div>
+                <span>{{ section.title }}</span>
+                <small>{{ section.lessons?.length }} lecciones</small>
+              </div>
+              <i class="bi"
+                [class.bi-chevron-down]="expandedSections[si]"
+                [class.bi-chevron-right]="!expandedSections[si]"></i>
+            </div>
+
+            <div class="accordion-body" *ngIf="expandedSections[si]">
+              <div class="lesson-row" *ngFor="let lesson of section.lessons">
+                <div class="lesson-row-left">
+                  <i class="bi"
+                    [class.bi-play-circle-fill]="lesson.type === 'video'"
+                    [class.bi-file-text-fill]="lesson.type === 'article'"></i>
+                  <span>{{ lesson.title }}</span>
+                </div>
+                <div class="lesson-row-right">
+                  <span *ngIf="lesson.duration" class="lesson-duration">
+                    {{ lesson.duration }} min
+                  </span>
+                  <i class="bi bi-lock-fill lock-icon"></i>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Examen final -->
+          <div class="accordion-item exam-item">
+            <div class="accordion-head exam-head">
+              <div class="accordion-head-left">
+                <div class="section-num exam">
+                  <i class="bi bi-clipboard-check-fill"></i>
+                </div>
+                <span>Examen final</span>
+              </div>
+              <i class="bi bi-lock-fill lock-icon"></i>
+            </div>
+          </div>
+          <!-- Reseñas -->
+<div class="content-section reviews-section">
+  <div class="reviews-header">
+    <h2>
+      <i class="bi bi-star-fill" style="color: #F59E0B; font-size: 1rem;"></i>
+      Reseñas del curso
+    </h2>
+    <div class="rating-summary" *ngIf="avgRating">
+      <span class="rating-big">{{ avgRating }}</span>
+      <div class="rating-stars-row">
+        <i class="bi" *ngFor="let s of [1,2,3,4,5]"
+          [class]="getReviewStarClass(s, avgRating ?? 0)"
+          style="color: #F59E0B; font-size: 0.9rem;"></i>
+      </div>
+      <span class="rating-count">{{ totalReviews }} reseña{{ totalReviews !== 1 ? 's' : '' }}</span>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <div class="reviews-empty" *ngIf="reviews.length === 0">
+    <i class="bi bi-star"></i>
+    <p>Este curso todavía no tiene reseñas.</p>
+  </div>
+
+  <!-- Lista -->
+  <div class="reviews-list" *ngIf="reviews.length > 0">
+    <div class="review-card" *ngFor="let review of reviews">
+      <div class="review-header">
+
+        <!-- Avatar con premium -->
+        <div class="avatar-wrap" [class.premium]="isPremium(review.user)">
+          <div class="avatar-inner review-avatar"
+            [style.background]="review.user?.avatar_color ?? '#4F46E5'">
+            {{ getInitials(review.user?.name) }}
+          </div>
+          <span class="premium-crown" *ngIf="isPremium(review.user)">👑</span>
+        </div>
+
+        <div class="review-meta">
+          <span class="review-username">{{ review.user?.name }}</span>
+          <div class="review-stars">
+            <i class="bi" *ngFor="let s of [1,2,3,4,5]"
+              [class]="getReviewStarClass(s, review.rating)"
+              style="color: #F59E0B; font-size: 0.8rem;"></i>
+          </div>
+        </div>
+        <span class="review-time">{{ getTimeAgo(review.created_at) }}</span>
+      </div>
+      <p class="review-comment" *ngIf="review.comment">{{ review.comment }}</p>
+    </div>
+  </div>
+</div>
+
+        </div>
+      </div>
+
+    </div><!-- ← cierre course-content -->
+
+  </ng-container>
+</div>

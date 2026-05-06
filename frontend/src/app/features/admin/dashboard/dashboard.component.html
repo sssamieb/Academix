@@ -21,64 +21,47 @@
     </header>
 
     <!-- Stats cards -->
-    <section class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon students">
-          <i class="bi bi-people-fill"></i>
-        </div>
-        <div class="stat-info">
-          <span>Estudiantes</span>
-          <h3>{{ stats.students }}</h3>
-          <p class="stat-change positive">
-            <i class="bi bi-arrow-up"></i>
-            12% este mes
-          </p>
-        </div>
-      </div>
+<section class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon students">
+      <i class="bi bi-people-fill"></i>
+    </div>
+    <div class="stat-info">
+      <span>Estudiantes</span>
+      <h3>{{ isLoading ? '—' : stats.students }}</h3>
+    </div>
+  </div>
 
-      <div class="stat-card">
-        <div class="stat-icon instructors">
-          <i class="bi bi-person-badge-fill"></i>
-        </div>
-        <div class="stat-info">
-          <span>Instructores</span>
-          <h3>{{ stats.instructors }}</h3>
-          <p class="stat-change positive">
-            <i class="bi bi-arrow-up"></i>
-            3 nuevos
-          </p>
-        </div>
-      </div>
+  <div class="stat-card">
+    <div class="stat-icon instructors">
+      <i class="bi bi-person-badge-fill"></i>
+    </div>
+    <div class="stat-info">
+      <span>Instructores</span>
+      <h3>{{ isLoading ? '—' : stats.instructors }}</h3>
+    </div>
+  </div>
 
-      <div class="stat-card">
-        <div class="stat-icon courses">
-          <i class="bi bi-play-btn-fill"></i>
-        </div>
-        <div class="stat-info">
-          <span>Cursos activos</span>
-          <h3>{{ stats.courses }}</h3>
-          <p class="stat-change positive">
-            <i class="bi bi-arrow-up"></i>
-            5 nuevos
-          </p>
-        </div>
-      </div>
+  <div class="stat-card">
+    <div class="stat-icon courses">
+      <i class="bi bi-play-btn-fill"></i>
+    </div>
+    <div class="stat-info">
+      <span>Cursos activos</span>
+      <h3>{{ isLoading ? '—' : stats.courses }}</h3>
+    </div>
+  </div>
 
-      <div class="stat-card">
-        <div class="stat-icon revenue">
-          <i class="bi bi-currency-dollar"></i>
-        </div>
-        <div class="stat-info">
-          <span>Ingresos</span>
-          <h3>${{ stats.revenue }}</h3>
-          <p class="stat-change positive">
-            <i class="bi bi-arrow-up"></i>
-            8% este mes
-          </p>
-        </div>
-      </div>
-    </section>
-
+  <div class="stat-card">
+    <div class="stat-icon revenue">
+      <i class="bi bi-currency-dollar"></i>
+    </div>
+    <div class="stat-info">
+      <span>Ingresos</span>
+      <h3>${{ isLoading ? '—' : stats.revenue }}</h3>
+    </div>
+  </div>
+</section>
     <!-- Acciones rápidas + actividad reciente -->
     <section class="content-grid">
 
@@ -110,7 +93,7 @@
             <i class="bi bi-chevron-right action-arrow"></i>
           </button>
 
-          <button class="action-btn">
+          <button class="action-btn" (click)="goToReports()">
             <div class="action-icon report">
               <i class="bi bi-file-earmark-bar-graph-fill"></i>
             </div>
@@ -121,7 +104,7 @@
             <i class="bi bi-chevron-right action-arrow"></i>
           </button>
 
-          <button class="action-btn">
+          <button class="action-btn" (click)="router.navigate(['/admin/settings'])">
             <div class="action-icon settings">
               <i class="bi bi-gear-fill"></i>
             </div>

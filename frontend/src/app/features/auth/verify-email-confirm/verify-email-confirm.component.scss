@@ -282,3 +282,8 @@ $error:     #EF4444;
   .login-left { display: none; }
   .login-right { padding: 2rem 1.5rem; }
 }
+
+@media (max-width: 480px) {
+  .login-right  { padding: 1.5rem 1rem; }
+  .status-card h1 { font-size: 1.4rem; }
+}

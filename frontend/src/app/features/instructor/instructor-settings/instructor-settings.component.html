@@ -1,0 +1,159 @@
+<div class="settings-wrap">
+
+  <div class="settings-header">
+    <div class="settings-header-content">
+      <h1><i class="bi bi-gear-fill"></i> Configuración</h1>
+      <p>Administrá tu cuenta</p>
+    </div>
+  </div>
+
+  <div class="settings-layout">
+
+    <!-- Tabs -->
+    <div class="settings-tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'security'"
+        (click)="activeTab = 'security'">
+        <i class="bi bi-shield-lock-fill"></i>
+        <span>Seguridad</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'account'"
+        (click)="activeTab = 'account'">
+        <i class="bi bi-person-fill"></i>
+        <span>Cuenta</span>
+      </button>
+    </div>
+
+    <div class="settings-content">
+
+      <!-- Seguridad -->
+      <div class="settings-panel" *ngIf="activeTab === 'security'">
+        <div class="panel-header">
+          <h2>{{ isGoogleUser ? 'Establecer contraseña' : 'Cambiar contraseña' }}</h2>
+          <p *ngIf="!isGoogleUser">Usá una contraseña segura con mayúsculas, números y símbolos.</p>
+          <div class="google-notice" *ngIf="isGoogleUser">
+            <i class="bi bi-google"></i>
+            <div>
+              <strong>Cuenta vinculada con Google</strong>
+              <p>Podés establecer una contraseña para iniciar sesión con tu email.</p>
+            </div>
+          </div>
+        </div>
+
+        <form class="password-form" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+
+          <div class="form-group" *ngIf="!isGoogleUser">
+            <label>Contraseña actual</label>
+            <div class="input-wrap">
+              <input
+                [type]="showCurrentPassword ? 'text' : 'password'"
+                formControlName="current_password"
+                placeholder="Tu contraseña actual"
+                class="form-input"
+                [class.error]="currentCtrl?.invalid && currentCtrl?.touched" />
+              <button type="button" class="toggle-pw"
+                (click)="showCurrentPassword = !showCurrentPassword">
+                <i class="bi" [class.bi-eye-fill]="!showCurrentPassword"
+                  [class.bi-eye-slash-fill]="showCurrentPassword"></i>
+              </button>
+            </div>
+            <span class="field-error" *ngIf="currentCtrl?.invalid && currentCtrl?.touched">
+              Este campo es requerido.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label>Nueva contraseña</label>
+            <div class="input-wrap">
+              <input
+                [type]="showNewPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Mínimo 8 caracteres"
+                class="form-input"
+                [class.error]="newCtrl?.invalid && newCtrl?.touched" />
+              <button type="button" class="toggle-pw"
+                (click)="showNewPassword = !showNewPassword">
+                <i class="bi" [class.bi-eye-fill]="!showNewPassword"
+                  [class.bi-eye-slash-fill]="showNewPassword"></i>
+              </button>
+            </div>
+            <span class="field-error" *ngIf="newCtrl?.hasError('required') && newCtrl?.touched">
+              Este campo es requerido.
+            </span>
+            <span class="field-error" *ngIf="newCtrl?.hasError('minlength') && newCtrl?.touched">
+              Mínimo 8 caracteres.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label>Confirmar contraseña</label>
+            <div class="input-wrap">
+              <input
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                formControlName="password_confirmation"
+                placeholder="Repetí la contraseña"
+                class="form-input"
+                [class.error]="(confirmCtrl?.invalid && confirmCtrl?.touched) || hasMismatch" />
+              <button type="button" class="toggle-pw"
+                (click)="showConfirmPassword = !showConfirmPassword">
+                <i class="bi" [class.bi-eye-fill]="!showConfirmPassword"
+                  [class.bi-eye-slash-fill]="showConfirmPassword"></i>
+              </button>
+            </div>
+            <span class="field-error" *ngIf="hasMismatch">
+              Las contraseñas no coinciden.
+            </span>
+          </div>
+
+          <button type="submit" class="btn-save"
+            [disabled]="passwordForm.invalid || isChangingPassword">
+            <span *ngIf="isChangingPassword" class="mini-spinner white"></span>
+            <i class="bi bi-check-lg" *ngIf="!isChangingPassword"></i>
+            {{ isChangingPassword ? 'Guardando...' : (isGoogleUser ? 'Establecer contraseña' : 'Actualizar contraseña') }}
+          </button>
+
+        </form>
+      </div>
+
+      <!-- Cuenta -->
+      <div class="settings-panel" *ngIf="activeTab === 'account'">
+        <div class="panel-header">
+          <h2>Información de cuenta</h2>
+          <p>Actualizá tu nombre tal como aparece en la plataforma.</p>
+        </div>
+
+        <form class="password-form" [formGroup]="nameForm" (ngSubmit)="saveName()">
+
+          <div class="form-group">
+            <label>Correo electrónico</label>
+            <input type="email" class="form-input readonly"
+              [value]="user?.email ?? ''" readonly />
+            <span class="field-hint">El correo no se puede cambiar.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Nombre completo</label>
+            <input type="text" formControlName="name"
+              placeholder="Tu nombre completo"
+              class="form-input"
+              [class.error]="nameCtrl?.invalid && nameCtrl?.touched" />
+            <span class="field-error" *ngIf="nameCtrl?.hasError('required') && nameCtrl?.touched">
+              Este campo es requerido.
+            </span>
+            <span class="field-error" *ngIf="nameCtrl?.hasError('minlength') && nameCtrl?.touched">
+              Mínimo 3 caracteres.
+            </span>
+          </div>
+
+          <button type="submit" class="btn-save"
+            [disabled]="nameForm.invalid || isSavingName">
+            <span *ngIf="isSavingName" class="mini-spinner white"></span>
+            <i class="bi bi-check-lg" *ngIf="!isSavingName"></i>
+            {{ isSavingName ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

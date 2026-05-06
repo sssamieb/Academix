@@ -665,3 +665,9 @@ $error:     #EF4444;
   .lesson-main    { padding: 1rem; }
   .video-container iframe { height: 220px; }
 }
+
+@media (max-width: 480px) {
+  .lesson-main            { padding: 0.75rem; }
+  .video-container iframe { height: 180px; }
+  .quiz-start-info        { flex-direction: column; gap: 0.75rem; }
+}

@@ -1,0 +1,221 @@
+<div class="exam-wrap">
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando examen...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && quiz">
+
+    <!-- Pantalla inicio -->
+    <div class="exam-start-screen" *ngIf="!examStarted && !examSubmitted">
+      <div class="exam-header-banner">
+        <button class="btn-back" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+          Volver al curso
+        </button>
+        <h1>{{ course?.title }}</h1>
+      </div>
+
+      <div class="exam-start-card">
+        <div class="exam-start-icon">
+          <i class="bi bi-clipboard-check-fill"></i>
+        </div>
+        <h2>Examen Final</h2>
+        <p>Demostrá todo lo que aprendiste en este curso.</p>
+
+        <div class="exam-info-grid">
+          <div class="exam-info-item">
+            <i class="bi bi-list-ol"></i>
+            <div>
+              <strong>{{ quiz.questions.length }}</strong>
+              <span>preguntas</span>
+            </div>
+          </div>
+          <div class="exam-info-item">
+            <i class="bi bi-clock-fill"></i>
+            <div>
+              <strong>{{ quiz.time_limit_minutes }}</strong>
+              <span>minutos</span>
+            </div>
+          </div>
+          <div class="exam-info-item">
+            <i class="bi bi-trophy-fill"></i>
+            <div>
+              <strong>{{ quiz.passing_score }}%</strong>
+              <span>para aprobar</span>
+            </div>
+          </div>
+          <div class="exam-info-item">
+            <i class="bi bi-arrow-repeat"></i>
+            <div>
+              <strong>{{ unlimited ? '∞' : maxAttempts }}</strong>
+              <span>intentos</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mejor intento anterior -->
+        <div class="best-attempt" *ngIf="bestAttempt">
+          <div class="best-attempt-label">Tu mejor intento</div>
+          <div class="best-attempt-score" [class.passed]="bestAttempt.passed" [class.failed]="!bestAttempt.passed">
+            {{ bestAttempt.score }}%
+            <span>{{ bestAttempt.passed ? '✓ Aprobado' : '✗ No aprobado' }}</span>
+          </div>
+        </div>
+
+        <!-- Sin intentos -->
+        <div class="no-attempts-notice" *ngIf="!canAttempt && !alreadyPassed">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div>
+            <strong>Sin intentos disponibles</strong>
+            <p>Usaste todos tus intentos. Mejorá tu plan para obtener más.</p>
+          </div>
+          <button class="btn-upgrade-plan" (click)="router.navigate(['/student/plans'])">
+            Ver planes
+          </button>
+        </div>
+
+        <div class="exam-attempts-info" *ngIf="!unlimited && canAttempt">
+          <i class="bi bi-info-circle"></i>
+          <span>Intentos usados: {{ attemptsUsed }} / {{ maxAttempts }}</span>
+        </div>
+        <div class="already-passed-notice" *ngIf="alreadyPassed">
+  <i class="bi bi-patch-check-fill"></i>
+  <div>
+    <strong>¡Ya aprobaste este examen!</strong>
+    <p>Tu certificado está disponible en tu perfil.</p>
+  </div>
+</div>
+        <button class="btn-start-exam" (click)="startExam()" *ngIf="canAttempt">
+          <i class="bi bi-play-fill"></i>
+          {{ bestAttempt ? 'Intentar de nuevo' : 'Comenzar examen' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Examen en progreso -->
+    <div class="exam-in-progress" *ngIf="examStarted && !examSubmitted">
+
+      <div class="exam-topbar">
+        <div class="exam-topbar-left">
+          <i class="bi bi-clipboard-check-fill"></i>
+          <span>Examen Final — {{ course?.title }}</span>
+        </div>
+        <div class="exam-timer" [class.warning]="timerWarning">
+          <div class="timer-bar">
+            <div class="timer-fill" [style.width.%]="timerPercent"
+              [class.warning]="timerWarning"></div>
+          </div>
+          <div class="timer-display">
+            <i class="bi bi-clock-fill"></i>
+            <span>{{ timerDisplay }}</span>
+          </div>
+        </div>
+        <div class="answers-progress">
+          {{ answeredCount }}/{{ quiz.questions.length }} respondidas
+        </div>
+      </div>
+
+      <div class="exam-questions">
+        <div class="exam-question-block"
+          *ngFor="let q of quiz.questions; let qi = index">
+          <div class="question-number">Pregunta {{ qi + 1 }} de {{ quiz.questions.length }}</div>
+          <p class="question-text">{{ q.question }}</p>
+          <div class="options-grid">
+            <button class="option-btn"
+              *ngFor="let opt of q.options; let oi = index"
+              [class.selected]="isSelected(qi, oi)"
+              (click)="selectAnswer(qi, oi)">
+              <span class="option-letter">{{ ['A','B','C','D'][oi] }}</span>
+              <span class="option-text">{{ opt.option_text }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="exam-submit-bar">
+        <span class="submit-progress">
+          {{ answeredCount }} de {{ quiz.questions.length }} preguntas respondidas
+        </span>
+        <button class="btn-submit-exam" (click)="confirmSubmit()">
+          <i class="bi bi-send-fill"></i>
+          Entregar examen
+        </button>
+      </div>
+    </div>
+
+    <!-- Resultado -->
+    <div class="exam-result-screen" *ngIf="examSubmitted && examResult">
+      <div class="exam-header-banner">
+        <button class="btn-back" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+          Volver al curso
+        </button>
+        <h1>{{ course?.title }}</h1>
+      </div>
+
+      <div class="result-card">
+        <div class="result-icon" [class.passed]="examPassed" [class.failed]="!examPassed">
+          <i class="bi"
+            [class.bi-patch-check-fill]="examPassed"
+            [class.bi-x-circle-fill]="!examPassed"></i>
+        </div>
+
+        <h2>{{ examPassed ? '¡Aprobaste el examen!' : 'No aprobaste esta vez' }}</h2>
+
+        <div class="result-score-display">
+          <span class="score-number" [class.passed]="examPassed" [class.failed]="!examPassed">
+            {{ examResult.score }}%
+          </span>
+          <span class="score-label">Puntaje obtenido</span>
+          <span class="score-passing">Mínimo requerido: {{ examResult.passing_score }}%</span>
+        </div>
+
+        <div class="result-stats">
+          <div class="result-stat">
+            <strong>{{ examResult.correct }}</strong>
+            <span>Correctas</span>
+          </div>
+          <div class="result-stat">
+            <strong>{{ examResult.total - examResult.correct }}</strong>
+            <span>Incorrectas</span>
+          </div>
+          <div class="result-stat">
+            <strong>{{ examResult.total }}</strong>
+            <span>Total</span>
+          </div>
+        </div>
+
+        <!-- Certificado si aprobó -->
+        <div class="certificate-notice" *ngIf="examPassed">
+          <i class="bi bi-award-fill"></i>
+          <div>
+            <strong>¡Felicitaciones!</strong>
+            <p>Completaste el curso. Tu certificado estará disponible en tu perfil.</p>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button class="btn-retry-exam"
+            *ngIf="!examPassed && canAttempt"
+            (click)="examStarted = false; examSubmitted = false">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Intentar de nuevo
+          </button>
+          <button class="btn-upgrade-plan"
+            *ngIf="!examPassed && !canAttempt"
+            (click)="router.navigate(['/student/plans'])">
+            <i class="bi bi-lightning-fill"></i>
+            Mejorar plan
+          </button>
+          <button class="btn-back-course" (click)="goBack()">
+            <i class="bi bi-collection-play"></i>
+            Volver al curso
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

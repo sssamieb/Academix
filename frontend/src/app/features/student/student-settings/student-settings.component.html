@@ -1,0 +1,174 @@
+<div class="settings-wrap">
+
+  <div class="settings-header">
+    <div class="settings-header-content">
+      <h1><i class="bi bi-gear-fill"></i> Configuración</h1>
+      <p>Administrá tu cuenta y preferencias</p>
+    </div>
+  </div>
+
+  <div class="settings-layout">
+
+    <!-- Tabs -->
+    <div class="settings-tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'security'"
+        (click)="setTab('security')">
+        <i class="bi bi-shield-lock-fill"></i>
+        <span>Seguridad</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'payments'"
+        (click)="setTab('payments')">
+        <i class="bi bi-credit-card-fill"></i>
+        <span>Historial de pagos</span>
+      </button>
+    </div>
+
+    <div class="settings-content">
+
+      <!-- Seguridad -->
+      <div class="settings-panel" *ngIf="activeTab === 'security'">
+        <div class="panel-header">
+          <h2>{{ isGoogleUser ? 'Establecer contraseña' : 'Cambiar contraseña' }}</h2>
+          <p *ngIf="!isGoogleUser">Asegurate de usar una contraseña segura con mayúsculas, números y símbolos.</p>
+
+          <!-- Banner Google -->
+          <div class="google-notice" *ngIf="isGoogleUser">
+            <i class="bi bi-google"></i>
+            <div>
+              <strong>Cuenta vinculada con Google</strong>
+              <p>Podés establecer una contraseña para también iniciar sesión con tu email.</p>
+            </div>
+          </div>
+        </div>
+
+        <form class="password-form" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+
+          <!-- Contraseña actual — solo si NO es Google -->
+          <div class="form-group" *ngIf="!isGoogleUser">
+            <label>Contraseña actual</label>
+            <div class="input-wrap">
+              <input
+                [type]="showCurrentPassword ? 'text' : 'password'"
+                formControlName="current_password"
+                placeholder="Tu contraseña actual"
+                class="form-input"
+                [class.error]="currentCtrl?.invalid && currentCtrl?.touched" />
+              <button type="button" class="toggle-pw"
+                (click)="showCurrentPassword = !showCurrentPassword">
+                <i class="bi" [class.bi-eye-fill]="!showCurrentPassword"
+                  [class.bi-eye-slash-fill]="showCurrentPassword"></i>
+              </button>
+            </div>
+            <span class="field-error" *ngIf="currentCtrl?.invalid && currentCtrl?.touched">
+              Este campo es requerido.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label>{{ isGoogleUser ? 'Nueva contraseña' : 'Nueva contraseña' }}</label>
+            <div class="input-wrap">
+              <input
+                [type]="showNewPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Mínimo 8 caracteres"
+                class="form-input"
+                [class.error]="newCtrl?.invalid && newCtrl?.touched" />
+              <button type="button" class="toggle-pw"
+                (click)="showNewPassword = !showNewPassword">
+                <i class="bi" [class.bi-eye-fill]="!showNewPassword"
+                  [class.bi-eye-slash-fill]="showNewPassword"></i>
+              </button>
+            </div>
+            <span class="field-error" *ngIf="newCtrl?.hasError('required') && newCtrl?.touched">
+              Este campo es requerido.
+            </span>
+            <span class="field-error" *ngIf="newCtrl?.hasError('minlength') && newCtrl?.touched">
+              Mínimo 8 caracteres.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label>Confirmar contraseña</label>
+            <div class="input-wrap">
+              <input
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                formControlName="password_confirmation"
+                placeholder="Repetí la contraseña"
+                class="form-input"
+                [class.error]="(confirmCtrl?.invalid && confirmCtrl?.touched) || hasMismatch" />
+              <button type="button" class="toggle-pw"
+                (click)="showConfirmPassword = !showConfirmPassword">
+                <i class="bi" [class.bi-eye-fill]="!showConfirmPassword"
+                  [class.bi-eye-slash-fill]="showConfirmPassword"></i>
+              </button>
+            </div>
+            <span class="field-error" *ngIf="hasMismatch">
+              Las contraseñas no coinciden.
+            </span>
+          </div>
+
+          <button type="submit" class="btn-save"
+            [disabled]="passwordForm.invalid || isChangingPassword">
+            <span *ngIf="isChangingPassword" class="mini-spinner white"></span>
+            <i class="bi bi-check-lg" *ngIf="!isChangingPassword"></i>
+            {{ isChangingPassword ? 'Guardando...' : (isGoogleUser ? 'Establecer contraseña' : 'Actualizar contraseña') }}
+          </button>
+
+        </form>
+      </div>
+
+      <!-- Pagos -->
+      <div class="settings-panel" *ngIf="activeTab === 'payments'">
+        <div class="panel-header">
+          <h2>Historial de pagos</h2>
+          <p>Tus suscripciones y pagos realizados en Academix.</p>
+        </div>
+
+        <div class="loading-payments" *ngIf="isLoadingPayments">
+          <div class="mini-spinner"></div>
+          <span>Cargando historial...</span>
+        </div>
+
+        <div class="empty-payments" *ngIf="!isLoadingPayments && payments.length === 0">
+          <i class="bi bi-receipt"></i>
+          <h3>Sin pagos registrados</h3>
+          <p>Tus pagos aparecerán aquí una vez que te suscribas a un plan.</p>
+          <button class="btn-see-plans" (click)="router.navigate(['/student/plans'])">
+            <i class="bi bi-lightning-fill"></i>
+            Ver planes
+          </button>
+        </div>
+
+        <div class="payments-list" *ngIf="!isLoadingPayments && payments.length > 0">
+          <div class="payment-card" *ngFor="let payment of payments">
+            <div class="payment-icon">
+              <i class="bi bi-receipt-cutoff"></i>
+            </div>
+            <div class="payment-info">
+              <div class="payment-top">
+                <span class="payment-plan">{{ payment.plan_name }}</span>
+                <span class="plan-badge" [class]="getPlanBadgeClass(payment.plan_type)">
+                  {{ payment.plan_type | titlecase }}
+                </span>
+              </div>
+              <span class="payment-date">
+                <i class="bi bi-calendar3"></i>
+                {{ payment.paid_at | date:'d/MM/yyyy, HH:mm' }}
+              </span>
+            </div>
+            <div class="payment-amount">
+              <span class="amount">{{ formatCurrency(payment.amount, payment.currency) }}</span>
+              <span class="status succeeded" *ngIf="payment.status === 'succeeded'">
+                <i class="bi bi-check-circle-fill"></i> Pagado
+              </span>
+              <span class="status failed" *ngIf="payment.status === 'failed'">
+                <i class="bi bi-x-circle-fill"></i> Fallido
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

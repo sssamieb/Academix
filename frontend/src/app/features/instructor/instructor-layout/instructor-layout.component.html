@@ -13,13 +13,16 @@
       <a class="nav-link" routerLink="/instructor/courses" routerLinkActive="active">
         <i class="bi bi-play-btn"></i> Mis cursos
       </a>
-      <a class="nav-link" href="#">
-        <i class="bi bi-people"></i> Estudiantes
+      <a class="nav-link" routerLink="/instructor/forum" routerLinkActive="active">
+        <i class="bi bi-chat-dots-fill"></i> Foro
       </a>
-      <a class="nav-link" href="#">
+      <a class="nav-link" routerLink="/instructor/students" routerLinkActive="active">
+        <i class="bi bi-people-fill"></i> Estudiantes
+      </a>
+      <a class="nav-link" routerLink="/instructor/stats" routerLinkActive="active">
         <i class="bi bi-bar-chart-line"></i> Estadísticas
       </a>
-      <a class="nav-link" href="#">
+      <a class="nav-link" routerLink="/instructor/reviews" routerLinkActive="active">
         <i class="bi bi-star"></i> Reseñas
       </a>
     </div>
@@ -31,15 +34,19 @@
       </button>
 
       <div class="avatar-menu" (click)="toggleAvatarMenu()" [class.open]="avatarMenuOpen">
-        <div class="user-avatar">{{ getInitials() }}</div>
+        <div class="user-avatar" [style.background]="avatarColor">{{ getInitials() }}</div>
         <div class="avatar-dropdown" *ngIf="avatarMenuOpen">
           <div class="avatar-dropdown-header">
             <strong>{{ user?.name }}</strong>
             <span>Instructor</span>
           </div>
           <hr>
-          <a href="#"><i class="bi bi-person-circle"></i> Mi perfil</a>
-          <a href="#"><i class="bi bi-gear"></i> Configuración</a>
+          <a class="nav-link" routerLink="/instructor/profile" routerLinkActive="active">
+  <i class="bi bi-person-circle"></i> Mi perfil
+</a>
+          <a class="nav-link" routerLink="/instructor/settings" routerLinkActive="active">
+            <i class="bi bi-gear"></i> Configuración
+          </a>
           <hr>
           <button class="dropdown-logout" (click)="logout()">
             <i class="bi bi-box-arrow-right"></i> Cerrar sesión

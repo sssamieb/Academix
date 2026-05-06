@@ -22,6 +22,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_active',
         'must_change_password',
         'plan_id',
+        'stripe_customer_id',
+        'stripe_subscription_id',
+        'subscription_status',
+        'subscription_ends_at',
+        'tokens',
+        'avatar_color', 
+        'google_id',
     ];
 
     protected $hidden = [
@@ -34,6 +41,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password'             => 'hashed',
         'is_active'            => 'boolean',
         'must_change_password' => 'boolean',
+        'subscription_ends_at' => 'datetime',
+        'tokens'               => 'integer',
     ];
 
     // Usa notificación de verificación personalizada
@@ -84,5 +93,9 @@ class User extends Authenticatable implements MustVerifyEmail
     public function plan()
     {
         return $this->belongsTo(Plan::class);
+    }
+    public function instructorProfile()
+    {
+        return $this->hasOne(InstructorProfile::class);
     }
 }

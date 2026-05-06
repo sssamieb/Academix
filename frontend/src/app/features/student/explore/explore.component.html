@@ -1,0 +1,146 @@
+<main class="explore-wrap">
+
+  <!-- Hero búsqueda -->
+  <div class="explore-hero">
+    <div class="hero-text">
+      <h1>Explorá todos los cursos</h1>
+      <p>Encontrá el curso perfecto para llevar tus habilidades al siguiente nivel</p>
+    </div>
+    <div class="hero-search">
+      <i class="bi bi-search"></i>
+      <input
+        type="text"
+        placeholder="Buscar cursos..."
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange()"
+      />
+      <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; loadCourses()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="explore-layout">
+
+    <!-- Sidebar filtros -->
+    <aside class="filters-sidebar">
+
+      <div class="filter-group">
+        <div class="filter-group-header">
+          <h3>Categoría</h3>
+          <button class="btn-clear-filter" *ngIf="selectedCategory" (click)="setCategory(0)">
+            Limpiar
+          </button>
+        </div>
+        <div class="filter-options">
+          <button class="filter-option" [class.active]="selectedCategory === 0"
+            (click)="setCategory(0)">
+            Todas
+          </button>
+          <button class="filter-option"
+            *ngFor="let cat of categories"
+            [class.active]="selectedCategory === cat.id"
+            (click)="setCategory(cat.id)">
+            <i class="bi" [class]="cat.icon"></i>
+            {{ cat.name }}
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-group-header">
+          <h3>Nivel</h3>
+          <button class="btn-clear-filter" *ngIf="selectedLevel" (click)="setLevel('')">
+            Limpiar
+          </button>
+        </div>
+        <div class="filter-options">
+          <button class="filter-option" [class.active]="selectedLevel === ''"
+            (click)="setLevel('')">Todos</button>
+          <button class="filter-option" [class.active]="selectedLevel === 'basico'"
+            (click)="setLevel('basico')">Básico</button>
+          <button class="filter-option" [class.active]="selectedLevel === 'intermedio'"
+            (click)="setLevel('intermedio')">Intermedio</button>
+          <button class="filter-option" [class.active]="selectedLevel === 'avanzado'"
+            (click)="setLevel('avanzado')">Avanzado</button>
+        </div>
+      </div>
+
+      <button class="btn-clear-all" *ngIf="hasFilters" (click)="clearFilters()">
+        <i class="bi bi-x-circle"></i>
+        Limpiar todos los filtros
+      </button>
+
+    </aside>
+
+    <!-- Grid de cursos -->
+    <div class="courses-area">
+
+      <div class="courses-header">
+        <span class="courses-count" *ngIf="!isLoading">
+          {{ courses.length }} curso{{ courses.length !== 1 ? 's' : '' }} encontrado{{ courses.length !== 1 ? 's' : '' }}
+        </span>
+        <span class="courses-count" *ngIf="isLoading">Buscando...</span>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-wrap" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Cargando cursos...</p>
+      </div>
+
+      <!-- Empty -->
+      <div class="empty-state" *ngIf="!isLoading && courses.length === 0">
+        <i class="bi bi-search"></i>
+        <h3>No encontramos cursos</h3>
+        <p *ngIf="hasFilters">Probá con otros filtros o términos de búsqueda.</p>
+        <p *ngIf="!hasFilters">Todavía no hay cursos publicados en la plataforma.</p>
+        <button class="btn-clear-all" *ngIf="hasFilters" (click)="clearFilters()">
+          Limpiar filtros
+        </button>
+      </div>
+
+      <!-- Grid -->
+      <div class="courses-grid" *ngIf="!isLoading && courses.length > 0">
+        <div class="course-card" *ngFor="let course of courses" (click)="goToCourse(course.id)">
+
+          <div class="course-thumb" [style.background]="getCategoryColor(course.category?.name)">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span class="course-level-badge">{{ getLevelLabel(course.level) }}</span>
+          </div>
+
+          <div class="course-body">
+            <span class="course-category">{{ course.category?.name }}</span>
+            <h3>{{ course.title }}</h3>
+            <p class="course-desc">{{ course.short_description }}</p>
+            <p class="course-instructor">
+              <i class="bi bi-person-fill"></i>
+              {{ course.instructor?.name }}
+            </p>
+
+            <div class="course-footer">
+              <div class="course-meta">
+                <span>
+                  <i class="bi bi-people-fill"></i>
+                  {{ course.enrollments_count }} inscritos
+                </span>
+              </div>
+              <div class="token-price">
+                <i class="bi bi-coin"></i>
+                <span>{{ course.token_price }} tokens</span>
+              </div>
+            </div>
+
+            <button class="btn-view-course">
+              Ver curso
+              <i class="bi bi-arrow-right"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>

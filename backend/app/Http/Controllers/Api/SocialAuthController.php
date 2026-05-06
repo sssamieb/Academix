@@ -38,6 +38,7 @@ class SocialAuthController extends Controller
             $user = User::create([
                 'name'                 => $googleUser->getName(),
                 'email'                => $googleUser->getEmail(),
+                'google_id'            => $googleUser->getId(),
                 'password'             => Hash::make(Str::random(24)),
                 'role'                 => 'student',
                 'is_active'            => true,

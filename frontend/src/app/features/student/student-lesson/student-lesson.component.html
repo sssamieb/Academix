@@ -1,0 +1,241 @@
+<div class="lesson-wrap">
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando lección...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && lesson">
+    <div class="lesson-layout">
+
+      <!-- Sidebar -->
+      <aside class="lesson-sidebar">
+  <div class="sidebar-course-title" (click)="goBack()" style="cursor:pointer">
+    <i class="bi bi-arrow-left"></i>
+    <span>{{ course?.title }}</span>
+  </div>
+
+  <ng-container *ngFor="let section of course?.sections; let si = index">
+    <ng-container *ngIf="!section.is_presentation && !section.is_final_exam">
+
+      <div class="sidebar-section-title">
+        <div class="sidebar-section-num">{{ si }}</div>
+        <span>{{ section.title }}</span>
+      </div>
+
+      <ng-container *ngFor="let les of section.lessons">
+
+        <div class="sidebar-item"
+          *ngIf="les.video_url || les.type === 'video'"
+          [class.active]="lesson?.id === les.id && !isQuizMode"
+          (click)="router.navigate(['/student/my-courses', courseId, 'lessons', les.id])">
+          <div class="sidebar-item-icon video">
+            <i class="bi bi-play-circle-fill"></i>
+          </div>
+          <div class="sidebar-item-info">
+            <span class="sidebar-item-type">Video</span>
+            <span class="sidebar-item-title">{{ les.title }}</span>
+          </div>
+        </div>
+
+        <div class="sidebar-item"
+          *ngIf="les.article_content || les.type === 'article'"
+          [class.active]="lesson?.id === les.id && !isQuizMode"
+          (click)="router.navigate(['/student/my-courses', courseId, 'lessons', les.id])">
+          <div class="sidebar-item-icon article">
+            <i class="bi bi-file-text-fill"></i>
+          </div>
+          <div class="sidebar-item-info">
+            <span class="sidebar-item-type">Artículo</span>
+            <span class="sidebar-item-title">{{ les.title }}</span>
+          </div>
+        </div>
+
+        <div class="sidebar-item"
+          *ngIf="les.quiz && les.quiz.is_active"
+          [class.active]="lesson?.id === les.id && isQuizMode"
+          (click)="router.navigate(['/student/my-courses', courseId, 'lessons', les.id, 'quiz'])">
+          <div class="sidebar-item-icon quiz">
+            <i class="bi bi-question-circle-fill"></i>
+          </div>
+          <div class="sidebar-item-info">
+            <span class="sidebar-item-type">Quiz</span>
+            <span class="sidebar-item-title">
+              {{ les.quiz.questions?.length }} preguntas · {{ les.quiz.time_limit_minutes }} min
+            </span>
+          </div>
+        </div>
+
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</aside>
+
+      <!-- Contenido -->
+      <main class="lesson-main">
+
+        <!-- Modo lección -->
+        <ng-container *ngIf="!isQuizMode">
+          <div class="lesson-header">
+            <h1>{{ lesson.title }}</h1>
+            <div class="lesson-meta" *ngIf="lesson.duration">
+              <i class="bi bi-clock"></i>
+              <span>{{ lesson.duration }} min</span>
+            </div>
+          </div>
+
+          <div class="video-container" *ngIf="lesson.video_url">
+            <iframe
+              [src]="getEmbedUrl(lesson.video_url) | safe"
+              frameborder="0" allowfullscreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+          </div>
+
+          <div class="article-container" *ngIf="lesson.article_content">
+            <div class="article-content ql-editor" [innerHTML]="lesson.article_content"></div>
+          </div>
+
+          <div class="notes-container" *ngIf="lesson.notes">
+            <div class="notes-header">
+              <i class="bi bi-sticky-fill"></i>
+              <h3>Notas de la lección</h3>
+            </div>
+            <div class="notes-content">{{ lesson.notes }}</div>
+          </div>
+
+          <div class="lesson-completed-badge" *ngIf="progress?.is_completed">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Lección completada</span>
+          </div>
+        </ng-container>
+
+        <!-- Modo quiz -->
+        <ng-container *ngIf="isQuizMode && lesson.quiz">
+
+          <!-- Pantalla inicio -->
+          <div class="quiz-start-screen" *ngIf="!quizStarted && !quizSubmitted">
+            <div class="quiz-start-icon">
+              <i class="bi bi-question-circle-fill"></i>
+            </div>
+            <h2>Quiz de práctica</h2>
+            <p>{{ lesson.title }}</p>
+            <div class="quiz-start-info">
+              <div class="quiz-info-item">
+                <i class="bi bi-list-ol"></i>
+                <span>{{ lesson.quiz.questions.length }} preguntas</span>
+              </div>
+              <div class="quiz-info-item">
+                <i class="bi bi-clock-fill"></i>
+                <span>{{ lesson.quiz.time_limit_minutes }} minutos</span>
+              </div>
+              <div class="quiz-info-item">
+                <i class="bi bi-trophy-fill"></i>
+                <span>Mínimo {{ lesson.quiz.passing_score }}% para aprobar</span>
+              </div>
+            </div>
+            <button class="btn-start-quiz" (click)="startQuiz()">
+              <i class="bi bi-play-fill"></i>
+              Comenzar quiz
+            </button>
+          </div>
+
+          <!-- Quiz en progreso -->
+          <div class="quiz-in-progress" *ngIf="quizStarted && !quizSubmitted">
+
+            <div class="quiz-timer" [class.warning]="timerWarning">
+              <div class="timer-bar">
+                <div class="timer-fill" [style.width.%]="timerPercent"></div>
+              </div>
+              <div class="timer-display">
+                <i class="bi bi-clock-fill"></i>
+                <span>{{ timerDisplay }}</span>
+              </div>
+            </div>
+
+            <div class="quiz-questions-list">
+              <div class="quiz-question-block"
+                *ngFor="let q of lesson.quiz.questions; let qi = index">
+                <div class="question-number">
+                  Pregunta {{ qi + 1 }} de {{ lesson.quiz.questions.length }}
+                </div>
+                <p class="question-text">{{ q.question }}</p>
+                <div class="options-grid">
+                  <button class="option-btn"
+                    *ngFor="let opt of q.options; let oi = index"
+                    [class.selected]="isSelected(qi, oi)"
+                    (click)="selectAnswer(qi, oi)">
+                    <span class="option-letter">{{ ['A','B','C','D'][oi] }}</span>
+                    <span class="option-text">{{ opt.option_text }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="quiz-submit-row">
+              <span class="answers-count">
+                {{ answeredCount }} de {{ lesson.quiz.questions.length }} respondidas
+              </span>
+              <button class="btn-submit-quiz" (click)="submitQuiz()">
+                <i class="bi bi-send-fill"></i>
+                Enviar respuestas
+              </button>
+            </div>
+          </div>
+
+          <!-- Resultado -->
+          <div class="quiz-result" *ngIf="quizSubmitted && quizResult">
+            <div class="result-icon" [class.passed]="quizPassed" [class.failed]="!quizPassed">
+              <i class="bi"
+                [class.bi-check-circle-fill]="quizPassed"
+                [class.bi-x-circle-fill]="!quizPassed"></i>
+            </div>
+            <h2>{{ quizPassed ? '¡Aprobado!' : 'No aprobado' }}</h2>
+            <p class="result-score">{{ quizResult.score }}%</p>
+            <p class="result-sub">
+              {{ quizResult.correct }} de {{ quizResult.total }} correctas ·
+              Mínimo requerido: {{ quizResult.passing_score }}%
+            </p>
+
+            <div class="result-actions">
+              <button class="btn-retry" (click)="retryQuiz()" *ngIf="!quizPassed">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                Intentar de nuevo
+              </button>
+              <button class="btn-back-course" (click)="goBack()">
+                <i class="bi bi-collection-play"></i>
+                Volver al curso
+              </button>
+            </div>
+          </div>
+
+          <!-- Sin intentos disponibles -->
+<div class="quiz-result" *ngIf="quizSubmitted && quizResult?.no_attempts">
+  <div class="result-icon failed">
+    <i class="bi bi-x-circle-fill"></i>
+  </div>
+  <h2>Sin intentos disponibles</h2>
+  <p class="result-sub">
+    Usaste todos los intentos disponibles para este quiz según tu plan.
+  </p>
+  <p class="result-sub">
+    Considerá actualizar tu plan para obtener más intentos.
+  </p>
+  <div class="result-actions">
+    <button class="btn-retry" (click)="router.navigate(['/student/plans'])">
+      <i class="bi bi-lightning-fill"></i>
+      Ver planes
+    </button>
+    <button class="btn-back-course" (click)="goBack()">
+      <i class="bi bi-collection-play"></i>
+      Volver al curso
+    </button>
+  </div>
+</div>
+
+        </ng-container>
+
+      </main>
+    </div>
+  </ng-container>
+</div>

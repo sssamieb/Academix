@@ -1,0 +1,143 @@
+<main class="reports-wrap">
+
+  <div class="loading-full" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando reportes...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && data">
+
+    <div class="page-header">
+      <div>
+        <h1><i class="bi bi-bar-chart-line-fill"></i> Reportes</h1>
+        <p>Estadísticas y métricas de la plataforma</p>
+      </div>
+      <button class="btn-export" (click)="exportExcel()">
+        <i class="bi bi-file-earmark-excel-fill"></i>
+        Exportar Excel
+      </button>
+    </div>
+
+    <!-- Totales -->
+    <div class="totals-grid">
+      <div class="total-card">
+        <div class="total-icon revenue">
+          <i class="bi bi-currency-dollar"></i>
+        </div>
+        <div class="total-info">
+          <span>Ingresos totales</span>
+          <strong>${{ data.totals.revenue }}</strong>
+        </div>
+      </div>
+      <div class="total-card">
+        <div class="total-icon students">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="total-info">
+          <span>Total estudiantes</span>
+          <strong>{{ data.totals.students }}</strong>
+        </div>
+      </div>
+      <div class="total-card">
+        <div class="total-icon enrollments">
+          <i class="bi bi-collection-play-fill"></i>
+        </div>
+        <div class="total-info">
+          <span>Inscripciones activas</span>
+          <strong>{{ data.totals.enrollments }}</strong>
+        </div>
+      </div>
+      <div class="total-card">
+        <div class="total-icon active">
+          <i class="bi bi-person-check-fill"></i>
+        </div>
+        <div class="total-info">
+          <span>Estudiantes activos</span>
+          <strong>{{ data.active_students }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos fila 1 -->
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-header">
+          <h3>Ingresos mensuales</h3>
+          <span class="chart-sub">Últimos 6 meses</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="revenueChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Ingresos por plan</h3>
+        </div>
+        <div class="chart-body">
+          <canvas id="plansChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos fila 2 -->
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-header">
+          <h3>Nuevos estudiantes</h3>
+          <span class="chart-sub">Últimos 6 meses</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="studentsChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Estudiantes activos vs inactivos</h3>
+        </div>
+        <div class="chart-body chart-body-sm">
+          <canvas id="activeChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fila 3 -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Cursos por categoría</h3>
+        </div>
+        <div class="chart-body">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Top cursos -->
+      <div class="chart-card wide">
+        <div class="chart-header">
+          <h3>Top cursos</h3>
+          <span class="chart-sub">Por inscripciones</span>
+        </div>
+        <div class="top-courses-list">
+          <div class="top-course-row"
+            *ngFor="let c of data.top_courses; let i = index">
+            <div class="rank" [class.top3]="i < 3">{{ i + 1 }}</div>
+            <div class="course-info">
+              <span class="course-name">{{ c.title }}</span>
+              <span class="course-instructor">{{ c.instructor }}</span>
+            </div>
+            <div class="course-stats">
+              <span class="enrollments-count">
+                <i class="bi bi-people-fill"></i>
+                {{ c.enrollments }}
+              </span>
+              <span class="course-category-tag">{{ c.category }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</main>

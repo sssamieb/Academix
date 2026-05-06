@@ -660,8 +660,13 @@ $error:     #EF4444;
 }
 
 @media (max-width: 768px) {
-  .lesson-layout { grid-template-columns: 1fr; }
+  .lesson-layout  { grid-template-columns: 1fr; }
   .lesson-sidebar { max-height: 250px; position: relative; }
   .lesson-main    { padding: 1rem; }
   .video-container iframe { height: 220px; }
+}
+
+@media (max-width: 480px) {
+  .lesson-main { padding: 0.75rem; }
+  .video-container iframe { height: 180px; }
 }
